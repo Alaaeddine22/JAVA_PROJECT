@@ -1,0 +1,10 @@
+com\streamingplatform\net\SocketServer.class
+com\streamingplatform\persistence\MessageDAO.class
+com\streamingplatform\Main.class
+com\streamingplatform\analysis\DataExporter.class
+com\streamingplatform\net\ClientWorker.class
+com\streamingplatform\persistence\DatabaseManager.class
+com\streamingplatform\ui\Dashboard.class
+com\streamingplatform\ui\Dashboard$1.class
+com\streamingplatform\service\BrokerService.class
+com\streamingplatform\ui\Dashboard$MessageData.class
