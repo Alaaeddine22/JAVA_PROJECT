@@ -162,7 +162,85 @@ while (result.hasNext()) {
 
 ---
 
-## 🖥️ Console Commands
+## � MySQL ↔ Neo4j Bridge - How It Works
+
+### Visual Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     NEO4J DATABASE                               │
+│                  (bolt://localhost:7687)                         │
+│                                                                  │
+│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────────┐  │
+│  │  Topic   │   │ producer │   │ consumer │   │  partition   │  │
+│  │  Nodes   │   │  Nodes   │   │  Nodes   │   │    Nodes     │  │
+│  └────┬─────┘   └────┬─────┘   └────┬─────┘   └──────┬───────┘  │
+└───────┼──────────────┼──────────────┼────────────────┼──────────┘
+        │              │              │                │
+        │         Neo4jToMySQLSync.java                │
+        │         (sync-neo4j command)                 │
+        ▼              ▼              ▼                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     MYSQL DATABASE                               │
+│                  (localhost:3306/streamingplatform)              │
+│                                                                  │
+│  ┌──────────┐   ┌───────────┐   ┌───────────┐   ┌────────────┐  │
+│  │  topics  │   │ producers │   │ consumers │   │ partitions │  │
+│  │  table   │   │   table   │   │   table   │   │   table    │  │
+│  └──────────┘   └───────────┘   └───────────┘   └────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The Bridge Code
+
+The `Neo4jToMySQLSync.java` imports BOTH database managers:
+
+```java
+import com.streamingplatform.persistence.MySQLManager;   // MySQL Connection
+import com.streamingplatform.persistence.Neo4jManager;   // Neo4j Connection
+```
+
+### How Data Flows (Example: syncTopics)
+
+```java
+private static int syncTopics() throws Exception {
+    // 1️⃣ Get MySQL connection
+    Connection mysqlConn = MySQLManager.getConnection();
+    PreparedStatement ps = mysqlConn.prepareStatement(
+        "INSERT INTO topics (name, message_count) VALUES (?, ?)"
+    );
+
+    // 2️⃣ Query Neo4j for all Topics
+    try (Session session = Neo4jManager.getDriver().session()) {
+        Result result = session.run(
+            "MATCH (t:Topic) RETURN t.name as name, t.messageCount as messageCount"
+        );
+        
+        // 3️⃣ For each Neo4j record, insert into MySQL
+        while (result.hasNext()) {
+            Record record = result.next();
+            ps.setString(1, record.get("name").asString());        // Neo4j → 
+            ps.setInt(2, record.get("messageCount").asInt());      // Neo4j → 
+            ps.executeUpdate();                                     // → MySQL!
+        }
+    }
+    return count;
+}
+```
+
+### Entities Synced
+
+| Neo4j Node | MySQL Table | Key Field |
+|------------|-------------|-----------|
+| `Topic` | `topics` | `name` |
+| `producer` | `producers` | `producer_id` |
+| `consumer` | `consumers` | `consumer_id` |
+| `partition` | `partitions` | `partition_id` |
+| `consumer_group` | `consumer_groups` | `group_id` |
+
+---
+
+## �🖥️ Console Commands
 
 | Command | Description |
 |---------|-------------|
