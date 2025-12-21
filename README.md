@@ -57,6 +57,82 @@ JAVA_PROJECT-devedits/
 
 ## 🔗 Database Architecture & Connections
 
+### Backend ↔ MySQL ↔ Neo4j Complete Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              BACKEND (Main.java)                                 │
+│                                                                                  │
+│  ┌────────────────────────────────────────────────────────────────────────────┐ │
+│  │                         SERVICE LAYER                                       │ │
+│  │  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────────┐  │ │
+│  │  │  MySQLSyncService │  │  Neo4jSyncService │  │  Neo4jToMySQLSync     │  │ │
+│  │  │  (every 5s)       │  │  (every 5s)       │  │  (on command)         │  │ │
+│  │  └─────────┬─────────┘  └─────────┬─────────┘  └───────────┬───────────┘  │ │
+│  └────────────┼──────────────────────┼────────────────────────┼──────────────┘ │
+│               │                      │                        │                 │
+│  ┌────────────┼──────────────────────┼────────────────────────┼──────────────┐ │
+│  │            │           PERSISTENCE LAYER                   │              │ │
+│  │            ▼                      ▼                        │              │ │
+│  │  ┌─────────────────┐    ┌─────────────────┐               │              │ │
+│  │  │  MySQLManager   │    │  Neo4jManager   │◄──────────────┘              │ │
+│  │  │  .getConnection │    │  .getDriver()   │                              │ │
+│  │  └────────┬────────┘    └────────┬────────┘                              │ │
+│  └───────────┼──────────────────────┼───────────────────────────────────────┘ │
+└──────────────┼──────────────────────┼───────────────────────────────────────────┘
+               │                      │
+               ▼                      ▼
+    ┌──────────────────┐    ┌──────────────────┐
+    │      MYSQL       │    │      NEO4J       │
+    │   (XAMPP)        │    │    (Desktop)     │
+    │                  │    │                  │
+    │ localhost:3306   │◄───│ localhost:7687   │
+    │                  │    │                  │
+    │ Tables:          │    │ Nodes:           │
+    │ - topics         │    │ - Topic          │
+    │ - producers      │    │ - producer       │
+    │ - consumers      │    │ - consumer       │
+    │ - partitions     │    │ - partition      │
+    └──────────────────┘    └──────────────────┘
+           ▲                        │
+           │   Neo4jToMySQLSync     │
+           └────────────────────────┘
+```
+
+### Key Files & Connections
+
+| Layer | File | Connection |
+|-------|------|------------|
+| **Backend Entry** | `Main.java` | Starts all services |
+| **MySQL Connection** | `MySQLManager.java` | `jdbc:mysql://localhost:3306` |
+| **Neo4j Connection** | `Neo4jManager.java` | `bolt://localhost:7687` |
+| **H2 → MySQL Sync** | `MySQLSyncService.java` | Runs every 5 seconds |
+| **H2 → Neo4j Sync** | `Neo4jSyncService.java` | Runs every 5 seconds |
+| **Neo4j → MySQL Bridge** | `Neo4jToMySQLSync.java` | On `sync-neo4j` command |
+
+### Main.java - The Backend Hub
+
+```java
+public static void main(String[] args) {
+    // 1. Initialize ALL databases
+    DatabaseManager.initializeDatabase();     // H2 (local fast storage)
+    MySQLManager.initializeDatabase();        // MySQL (XAMPP)
+    Neo4jManager.initializeDatabase();        // Neo4j (Graph DB)
+    
+    // 2. Start background sync services
+    MySQLSyncService mysqlSyncService = new MySQLSyncService();
+    mysqlSyncService.start();                 // H2 → MySQL every 5s
+    
+    Neo4jSyncService neo4jSyncService = new Neo4jSyncService();
+    neo4jSyncService.start();                 // H2 → Neo4j every 5s
+    
+    // 3. Console command for Neo4j → MySQL sync
+    case "sync-neo4j" -> Neo4jToMySQLSync.syncAll();
+}
+```
+
+---
+
 ### Multi-Database Flow
 
 ```
