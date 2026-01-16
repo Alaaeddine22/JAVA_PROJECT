@@ -478,17 +478,20 @@
             margin-bottom: 50px;
         }
 
-        .title-slide .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            padding: 18px 35px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 60px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 40px;
-        }
+.title-slide .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 35px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin: 0 auto 40px auto; /* Changed to center horizontally */
+    max-width: 600px;
+    text-align: center;
+    justify-content: center;
+}
 
         .team-grid {
             display: flex;
