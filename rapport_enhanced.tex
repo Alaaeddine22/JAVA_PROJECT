@@ -135,173 +135,77 @@ Ce projet nous a permis d'approfondir nos connaissances en bases de données NoS
 \chapter{Introduction}
 
 \section{Présentation du Projet}
+Dans le cadre du module NoSQL de notre formation en Génie Informatique à l'EMSI, nous avons développé une \textbf{plateforme de streaming de données en temps réel}. Ce projet vise à démontrer l'intégration de plusieurs technologies de bases de données NoSQL et relationnelles pour gérer des flux de données massifs.
 
-\subsection{Contexte Académique et Industriel}
-Dans le cadre du module NoSQL de notre formation en Génie Informatique à l'EMSI, nous avons développé une \textbf{plateforme de streaming de données en temps réel}. Ce projet s'inscrit dans un contexte où les systèmes de traitement de données en continu sont devenus essentiels pour les entreprises modernes.
+La plateforme \textbf{Streaming Platform} est conçue pour simuler un environnement de messagerie distribuée similaire à Apache Kafka, où des \textbf{Producteurs} (Producers) envoient des messages vers des \textbf{Topics}, qui sont ensuite consommés par des \textbf{Consommateurs} (Consumers). Cette architecture permet de gérer efficacement des millions de messages avec une latence minimale.
 
-Selon les études d'IDC (International Data Corporation), le volume mondial de données atteindra \textbf{175 zettaoctets d'ici 2025}, contre 33 zettaoctets en 2018. Cette croissance exponentielle impose de nouvelles approches architecturales pour gérer ce que l'on appelle les \textbf{4V du Big Data}:
+\subsection{Contexte Technologique}
+Les systèmes de streaming de données sont devenus incontournables dans l'écosystème Big Data moderne:
 \begin{itemize}
-    \item \textbf{Volume}: Quantités massives de données générées en continu
-    \item \textbf{Vélocité}: Vitesse d'arrivée et de traitement des données
-    \item \textbf{Variété}: Multiplicité des formats et sources de données
-    \item \textbf{Véracité}: Fiabilité et qualité des données collectées
+    \item \textbf{Apache Kafka} traite plus de 7 trillions de messages par jour chez LinkedIn
+    \item \textbf{Amazon Kinesis} gère les flux de données AWS à l'échelle mondiale
+    \item \textbf{Apache Pulsar} offre une architecture multi-tenant pour le cloud
 \end{itemize}
 
-\subsection{Description de la Plateforme}
-La plateforme \textbf{Streaming Platform} est conçue pour simuler un environnement de messagerie distribuée similaire aux systèmes industriels comme Apache Kafka. L'architecture repose sur le paradigme \textbf{Publish-Subscribe} (Pub/Sub) où:
-
-\begin{enumerate}
-    \item Les \textbf{Producteurs} (Producers) émettent des messages vers des canaux logiques
-    \item Les \textbf{Topics} servent de canaux de catégorisation des messages
-    \item Les \textbf{Consommateurs} (Consumers) s'abonnent aux Topics et reçoivent les messages
-\end{enumerate}
-
-Ce découplage entre producteurs et consommateurs offre des avantages significatifs:
-\begin{itemize}
-    \item \textbf{Scalabilité}: Ajout/retrait de composants sans impact système
-    \item \textbf{Résilience}: Tolérance aux pannes grâce à la persistance
-    \item \textbf{Flexibilité}: Évolution indépendante des composants
-\end{itemize}
-
-\subsection{Positionnement Technologique}
-Notre projet s'inspire des systèmes de streaming industriels tout en proposant une approche pédagogique multi-bases:
-
-\begin{table}[H]
-    \centering
-    \small
-    \begin{tabular}{|l|p{4cm}|p{4cm}|}
-        \hline
-        \textbf{Système} & \textbf{Caractéristiques} & \textbf{Échelle} \\
-        \hline
-        Apache Kafka & Log distribué, partitionné & 7+ trillions msg/jour (LinkedIn) \\
-        Amazon Kinesis & Serverless AWS, managed & Échelle mondiale \\
-        Apache Pulsar & Multi-tenant, séparation compute/storage & Yahoo/Splunk \\
-        \textbf{Notre Plateforme} & Multi-bases, pédagogique & Milliers msg/s \\
-        \hline
-    \end{tabular}
-    \caption{Comparaison avec les Systèmes de Streaming Industriels}
-\end{table}
+Notre projet s'inspire de ces systèmes tout en offrant une approche pédagogique pour comprendre les mécanismes sous-jacents.
 
 \section{Objectifs du Système de Streaming en Temps Réel}
 
 \subsection{Objectifs Techniques}
 \begin{enumerate}
-    \item \textbf{Architecture N-Tier}: Concevoir une architecture multi-couches avec séparation claire des responsabilités:
+    \item \textbf{Architecture Multi-Tiers}: Concevoir une architecture N-Tier avec séparation claire des responsabilités (Présentation, Logique Métier, Données).
+    \item \textbf{Persistance Polyglotte}: Intégrer trois bases de données hétérogènes:
     \begin{itemize}
-        \item Couche Présentation (Frontend HTML/JS)
-        \item Couche API (Node.js/Express)
-        \item Couche Métier (Java)
-        \item Couche Données (H2 + MySQL + Neo4j)
+        \item H2 Database pour l'ingestion rapide (Hot Storage)
+        \item MySQL pour l'analyse structurée et les métadonnées
+        \item Neo4j pour la modélisation des relations complexes
     \end{itemize}
-    
-    \item \textbf{Persistance Polyglotte}: Intégrer trois technologies de bases de données complémentaires, chacune optimisée pour un cas d'usage spécifique:
-    \begin{itemize}
-        \item \textbf{H2 Database}: Ingestion rapide et buffer de messages (Hot Storage)
-        \item \textbf{MySQL}: Stockage structuré ACID et métadonnées
-        \item \textbf{Neo4j}: Modélisation des relations complexes en graphe
-    \end{itemize}
-    
-    \item \textbf{Synchronisation Inter-Bases}: Maintenir la cohérence des données entre les trois systèmes via des mécanismes de synchronisation automatiques.
-    
-    \item \textbf{API RESTful}: Exposer l'ensemble des fonctionnalités via une API REST complète avec opérations CRUD.
-    
-    \item \textbf{Monitoring Temps Réel}: Fournir un dashboard interactif pour visualiser les flux de données.
+    \item \textbf{Synchronisation Temps Réel}: Maintenir la cohérence des données entre les trois bases avec des mécanismes de synchronisation automatiques.
+    \item \textbf{API REST Complète}: Exposer toutes les fonctionnalités via une API RESTful avec opérations CRUD.
+    \item \textbf{Interface Utilisateur Moderne}: Créer un dashboard interactif avec visualisations dynamiques.
 \end{enumerate}
-
-\subsection{Objectifs de Performance}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|c|l|}
-        \hline
-        \textbf{Métrique} & \textbf{Objectif} & \textbf{Justification} \\
-        \hline
-        Throughput & > 2,000 msg/s & Simulation charge IoT \\
-        Latence P99 & < 10 ms & Expérience utilisateur \\
-        Connexions simultanées & 100+ & Multi-tenancy basique \\
-        Disponibilité & > 99\% & SLA projet académique \\
-        \hline
-    \end{tabular}
-    \caption{Objectifs de Performance Cibles}
-\end{table}
 
 \subsection{Objectifs Pédagogiques}
 \begin{itemize}
-    \item Maîtriser le langage \textbf{Cypher} pour les requêtes sur graphes Neo4j
-    \item Comprendre les patterns de synchronisation entre bases hétérogènes
-    \item Implémenter une architecture orientée services avec \textbf{Node.js}
-    \item Développer des interfaces utilisateur réactives avec \textbf{JavaScript ES6+}
-    \item Appliquer les principes de programmation concurrente avec \textbf{ExecutorService}
+    \item Maîtriser le langage Cypher pour les requêtes sur graphes Neo4j
+    \item Comprendre les patterns de synchronisation inter-bases
+    \item Implémenter une architecture orientée services avec Node.js
+    \item Développer des interfaces utilisateur réactives avec JavaScript ES6+
 \end{itemize}
 
 \section{Problématique: Gestion de la Vélocité et de la Complexité des Données}
 
-\subsection{Le Théorème CAP et ses Implications}
-Le théorème CAP, formalisé par Eric Brewer en 2000, stipule qu'un système distribué ne peut garantir simultanément que \textbf{deux des trois propriétés} suivantes:
-
-\begin{itemize}
-    \item \textbf{Consistency (C)}: Tous les nœuds voient les mêmes données au même moment
-    \item \textbf{Availability (A)}: Chaque requête reçoit une réponse (succès ou échec)
-    \item \textbf{Partition tolerance (P)}: Le système fonctionne malgré des pertes réseau
-\end{itemize}
-
-Notre architecture multi-bases doit naviguer entre ces contraintes:
-\begin{itemize}
-    \item \textbf{H2}: Système mono-nœud → Garanties ACID complètes
-    \item \textbf{MySQL}: Configuration single-master → CP (Consistency + Partition)
-    \item \textbf{Neo4j}: Mode standalone → CP avec cohérence causale
-\end{itemize}
-
-\subsection{Défis du Streaming de Données}
+\subsection{Les Défis du Streaming de Données}
 Les systèmes de streaming modernes font face à plusieurs défis majeurs:
 
 \begin{enumerate}
     \item \textbf{Vélocité (Velocity)}: Comment ingérer des milliers de messages par seconde sans perte de données?
-    
-    \textit{→ Solution}: H2 embarqué comme buffer d'ingestion haute-performance (latence < 1ms)
-    
     \item \textbf{Volume}: Comment stocker et indexer des millions d'enregistrements efficacement?
-    
-    \textit{→ Solution}: Stratégie de tiering Hot/Warm/Cold avec archivage automatique
-    
-    \item \textbf{Variété}: Comment gérer des modèles de données hétérogènes?
-    
-    \textit{→ Solution}: Persistance polyglotte avec bases spécialisées
-    
-    \item \textbf{Cohérence}: Comment maintenir l'intégrité entre bases différentes?
-    
-    \textit{→ Solution}: Services de synchronisation périodiques avec eventual consistency
+    \item \textbf{Variété}: Comment gérer des données de structures différentes (relationnelles et graphes)?
+    \item \textbf{Véracité}: Comment assurer la cohérence des données entre les différentes bases?
 \end{enumerate}
 
-\subsection{Notre Approche Architecturale}
-Pour répondre à ces défis, notre architecture utilise une stratégie de \textbf{Polyglot Persistence} (Martin Fowler, 2011), reconnaissant qu'aucune base de données unique ne peut répondre optimalement à tous les cas d'usage:
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|l|}
-        \hline
-        \textbf{Base} & \textbf{Rôle} & \textbf{Avantage} \\
-        \hline
-        H2 (Hot) & Buffer d'ingestion & Latence ultra-faible < 1ms \\
-        MySQL (Warm) & Stockage ACID & Requêtes SQL complexes \\
-        Neo4j (Cold) & Relations graphe & Traversées O(1) \\
-        \hline
-    \end{tabular}
-    \caption{Stratégie de Persistance Polyglotte}
-\end{table}
+\subsection{Notre Approche}
+Pour répondre à ces défis, notre architecture utilise:
+\begin{itemize}
+    \item \textbf{H2 comme buffer d'ingestion}: Base embarquée ultra-rapide pour absorber les pics de charge
+    \item \textbf{MySQL pour la persistance}: Stockage ACID pour les données critiques
+    \item \textbf{Neo4j pour les relations}: Modélisation naturelle des liens Producer-Topic-Consumer
+    \item \textbf{Services de synchronisation}: Jobs périodiques pour maintenir la cohérence
+\end{itemize}
 
 \section{Organisation du Rapport}
-Ce rapport est structuré en 9 chapitres couvrant l'ensemble du projet:
-
+Ce rapport est structuré en 9 chapitres:
 \begin{itemize}
-    \item \textbf{Chapitre 1 - Introduction}: Contexte, objectifs et problématique
-    \item \textbf{Chapitre 2 - Architecture}: Conception N-Tier, réseau TCP et concurrence
-    \item \textbf{Chapitre 3 - Persistance}: Stratégie multi-bases H2/MySQL/Neo4j
-    \item \textbf{Chapitre 4 - Synchronisation}: Services de synchronisation et flux de données
-    \item \textbf{Chapitre 5 - Cycle de vie}: Rétention, archivage et maintenance
-    \item \textbf{Chapitre 6 - Interface}: Dashboard, monitoring et API REST
-    \item \textbf{Chapitre 7 - Analyse critique}: Performance, intégrité et sécurité
-    \item \textbf{Chapitre 8 - Conclusion}: Synthèse et perspectives d'évolution
-    \item \textbf{Chapitre 9 - Annexes}: Installation, diagrammes UML et documentation API
+    \item \textbf{Chapitre 1}: Introduction et problématique
+    \item \textbf{Chapitre 2}: Architecture système et réseau
+    \item \textbf{Chapitre 3}: Stratégie de persistance multi-bases
+    \item \textbf{Chapitre 4}: Services de synchronisation et flux de données
+    \item \textbf{Chapitre 5}: Gestion du cycle de vie des données
+    \item \textbf{Chapitre 6}: Interface utilisateur et monitoring
+    \item \textbf{Chapitre 7}: Analyse critique et sécurité
+    \item \textbf{Chapitre 8}: Conclusion et perspectives
+    \item \textbf{Chapitre 9}: Annexes techniques
 \end{itemize}
 
 %======================================
@@ -317,6 +221,163 @@ Notre plateforme implémente une architecture N-Tier classique avec 4 couches di
     \centering
     \includegraphics[width=\textwidth]{screenshots/architecture_diagram.png}
     \caption{Architecture Multi-Tiers de la Plateforme}
+\end{figure}
+
+\subsection{Diagramme de Séquence: Flux d'Ingestion et Synchronisation}
+La figure suivante illustre le flux complet depuis la réception d'un message jusqu'à sa synchronisation:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{diagrams/sequence.png}
+    \caption{Diagramme de Séquence: Flux d'Ingestion et Synchronisation}
+    \label{fig:sequence}
+\end{figure}
+
+Le diagramme de séquence (\ref{fig:sequence}) montre le processus complet:
+\begin{enumerate}
+    \item Le Producer envoie un message (Topic + Payload) via SocketServer
+    \item Le ClientWorker persiste le message dans H2 Database
+    \item Un accusé de réception (Ack) est renvoyé au Producer
+    \item La synchronisation périodique (toutes les 5s) transfère les données vers MySQL et Neo4j
+    \item Les services de synchronisation maintiennent la cohérence entre les bases
+\end{enumerate}
+
+\subsection{Diagramme de Classes: Structure du Projet}
+La figure suivante présente l'architecture des classes principales du système:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{diagrams/class.png}
+    \caption{Diagramme de Classes: Structure du Projet Java}
+    \label{fig:class}
+\end{figure}
+
+Le diagramme de classes (\ref{fig:class}) illustre:
+\begin{itemize}
+    \item \textbf{SocketServer}: Gère les connexions TCP et le pool de threads
+    \item \textbf{ClientWorker}: Traite chaque connexion client individuellement
+    \item \textbf{DatabaseManager}: Abstrait l'accès à H2 Database
+    \item \textbf{Services de Synchronisation}: MySQLSyncService et Neo4jSyncService avec leurs managers respectifs
+    \item \textbf{ArchiveService}: Gère le cycle de vie des données
+\end{itemize}
+
+\section{Stack Technologique}
+
+Notre plateforme repose sur un stack technologique moderne et performant, organisé en quatre couches distinctes.
+
+\begin{figure}[H]
+    \centering
+    \begin{tcolorbox}[
+        enhanced,
+        colback=white,
+        colframe=emsiblue,
+        width=0.95\textwidth,
+        arc=3mm,
+        boxrule=1.5pt
+    ]
+    
+    % Frontend Layer
+    \begin{tcolorbox}[
+        enhanced,
+        colback=teal!10,
+        colframe=teal,
+        title={\textbf{Couche Présentation - Frontend}},
+        fonttitle=\bfseries,
+        arc=2mm,
+        boxrule=1pt,
+        left=2mm,
+        right=2mm,
+        top=2mm,
+        bottom=2mm
+    ]
+    \centering\small
+    \begin{tabular}{cccc}
+        \includegraphics[height=1.8cm]{logos/html_css_js_logo.png} &
+        \includegraphics[height=1.8cm]{logos/chartjs_logo.png} &
+        \raisebox{0.4cm}{\textbf{Glassmorphism}} &
+        \raisebox{0.4cm}{\textbf{Fetch API}} \\[0.2cm]
+        \scriptsize HTML5/CSS3/JS & \scriptsize Chart.js & \scriptsize Design & \scriptsize REST
+    \end{tabular}
+    \end{tcolorbox}
+    
+    \vspace{0.2cm}
+    
+    % Backend Layer
+    \begin{tcolorbox}[
+        enhanced,
+        colback=orange!10,
+        colframe=orange,
+        title={\textbf{Couche API - Backend}},
+        fonttitle=\bfseries,
+        arc=2mm,
+        boxrule=1pt,
+        left=2mm,
+        right=2mm,
+        top=2mm,
+        bottom=2mm
+    ]
+    \centering\small
+    \begin{tabular}{ccc}
+        \includegraphics[height=1.8cm]{logos/nodejs_logo.png} &
+        \raisebox{0.4cm}{\textbf{Express.js}} &
+        \raisebox{0.4cm}{\textbf{neo4j-driver}} \\[0.2cm]
+        \scriptsize Node.js Runtime & \scriptsize Framework REST & \scriptsize Driver Neo4j
+    \end{tabular}
+    \end{tcolorbox}
+    
+    \vspace{0.2cm}
+    
+    % Business Logic Layer
+    \begin{tcolorbox}[
+        enhanced,
+        colback=emsiblue!10,
+        colframe=emsiblue,
+        title={\textbf{Couche Logique Métier}},
+        fonttitle=\bfseries,
+        arc=2mm,
+        boxrule=1pt,
+        left=2mm,
+        right=2mm,
+        top=2mm,
+        bottom=2mm
+    ]
+    \centering\small
+    \begin{tabular}{ccc}
+        \includegraphics[height=1.8cm]{logos/java_logo.png} &
+        \includegraphics[height=1.8cm]{logos/maven_logo.png} &
+        \raisebox{0.4cm}{\textbf{ThreadPool}} \\[0.2cm]
+        \scriptsize Java 17 LTS & \scriptsize Maven 3.9 & \scriptsize Concurrence
+    \end{tabular}
+    \end{tcolorbox}
+    
+    \vspace{0.2cm}
+    
+    % Data Layer
+    \begin{tcolorbox}[
+        enhanced,
+        colback=codepurple!10,
+        colframe=codepurple,
+        title={\textbf{Couche Données - Bases de Données}},
+        fonttitle=\bfseries,
+        arc=2mm,
+        boxrule=1pt,
+        left=2mm,
+        right=2mm,
+        top=2mm,
+        bottom=2mm
+    ]
+    \centering\small
+    \begin{tabular}{ccc}
+        \includegraphics[height=1.8cm]{logos/h2_logo.png} &
+        \includegraphics[height=1.8cm]{logos/mysql_logo.png} &
+        \includegraphics[height=1.8cm]{logos/neo4j_logo.png} \\[0.2cm]
+        \scriptsize H2 (Hot Storage) & \scriptsize MySQL (XAMPP) & \scriptsize Neo4j Desktop
+    \end{tabular}
+    \end{tcolorbox}
+    
+    \end{tcolorbox}
+    \caption{Architecture Technologique Complète de la Plateforme}
+    \label{fig:techstack}
 \end{figure}
 
 \subsection{Couche Présentation (Frontend)}
@@ -694,6 +755,19 @@ public class Neo4jManager implements AutoCloseable {
 %======================================
 \chapter{Services de Synchronisation et Flux de Données}
 
+\section{Processus de Synchronisation Multi-Bases}
+
+Notre plateforme implémente un système de synchronisation complexe entre trois bases de données hétérogènes. Le diagramme de séquence (Figure \ref{fig:sequence}) illustre clairement ce flux:
+
+\subsection{Synchronisation Périodique (Every 5s)}
+Comme montré dans le diagramme, un job de synchronisation s'exécute toutes les 5 secondes:
+\begin{enumerate}
+    \item \textbf{Query recent messages/counts}: Extraction des données récentes de H2
+    \item \textbf{UPSERT stats into ip\_topic\_stats}: Mise à jour des statistiques dans MySQL
+    \item \textbf{Query unique Producers/Topics}: Extraction des entités uniques
+    \item \textbf{Merge (Nodes) \& CREATE (Relationships)}: Mise à jour du graphe Neo4j
+\end{enumerate}
+
 \section{Synchronisation H2 vers MySQL: Agrégation des Statistiques}
 
 Le service de synchronisation H2 → MySQL agrège les messages bruts en statistiques:
@@ -1065,6 +1139,7 @@ public class TestProducer {
 
 \subsection{Points d'Amélioration Identifiés}
 \begin{itemize}
+    \item[\textcolor{red}{!}] Les mots de passe sont actuellement en dur dans le code
     \item[\textcolor{red}{!}] Pas de chiffrement des connexions JDBC
     \item[\textcolor{red}{!}] Pas d'authentification sur l'API REST
 \end{itemize}
@@ -1141,6 +1216,44 @@ Pour passer en production, l'architecture pourrait évoluer vers:
 %======================================
 \appendix
 \chapter{Annexes}
+
+\section{Diagrammes Techniques}
+
+\subsection{Diagramme de Séquence Complet}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{diagrams/sequence.png}
+    \caption{Diagramme de Séquence: Flux Complet de Traitement}
+    \label{fig:appendix-sequence}
+\end{figure}
+
+Description du flux:
+\begin{itemize}
+    \item \textbf{Producer}: Émetteur de messages vers la plateforme
+    \item \textbf{SocketServer/ClientWorker}: Réception et traitement initial
+    \item \textbf{H2 Database}: Stockage temporaire haute performance
+    \item \textbf{MySQLSyncService}: Synchronisation vers MySQL pour l'analyse
+    \item \textbf{Neo4jSyncService}: Synchronisation vers Neo4j pour les relations
+    \item \textbf{Synchronisation Périodique}: Processus automatique toutes les 5 secondes
+\end{itemize}
+
+\subsection{Diagramme de Classes Détaillé}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{diagrams/class.png}
+    \caption{Diagramme de Classes: Architecture Logicielle}
+    \label{fig:appendix-class}
+\end{figure}
+
+Structure des packages:
+\begin{itemize}
+    \item \textbf{streamingplatform}: Package racine
+    \item \textbf{net}: Gestion réseau (SocketServer, ClientWorker)
+    \item \textbf{persistence}: Accès aux bases (DatabaseManager)
+    \item \textbf{service}: Logique métier et synchronisation
+    \item \textbf{ArchiveService}: Gestion du cycle de vie
+    \item \textbf{MySQLSyncService/Neo4jSyncService}: Services de synchronisation
+\end{itemize}
 
 \section{Manuel d'Installation}
 
