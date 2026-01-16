@@ -440,6 +440,372 @@ After running `sync-neo4j`:
 | consumers | 0 |
 | partitions | 0 |
 | consumer_groups | 0 |
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+---
+
+## 🔢 Relational Algebra Operations Implementation
+
+This section demonstrates where each relational algebra operation is implemented in the codebase across Frontend, Backend (Java), and Neo4j.
+
+### 1. **RS: Select All (Projection)**
+Retrieve all records from a relation without filtering.
+
+#### 🎨 Frontend (`frontend/server.js`)
+```javascript
+// Line 70-80: Get all topics
+app.get('/api/topics', async (req, res) => {
+    const records = await runQuery(`
+        MATCH (t:Topic)
+        OPTIONAL MATCH (p:Producer)-[r:PUBLISHES_TO]->(t)
+        RETURN t.name as name, 
+               COALESCE(t.messageCount, 0) as messageCount,
+               COUNT(DISTINCT p) as producerCount
+        ORDER BY messageCount DESC
+        LIMIT 100
+    `);
+});
+
+// Line 98-108: Get all producers
+app.get('/api/producers', async (req, res) => {
+    const records = await runQuery(`
+        MATCH (p:Producer)
+        OPTIONAL MATCH (p)-[r:PUBLISHES_TO]->(t:Topic)
+        RETURN p.id as id,
+               COUNT(DISTINCT t) as topicCount
+    `);
+});
+
+// Line 126-135: Get all consumers
+app.get('/api/consumers', async (req, res) => {
+    const records = await runQuery(`
+        MATCH (c:Consumer)
+        OPTIONAL MATCH (c)-[r:SUBSCRIBES_TO]->(t:Topic)
+        RETURN c.id as id
+    `);
+});
+```
+
+#### ☕ Backend Java
+```java
+// File: src/main/java/com/streamingplatform/analysis/DataExporter.java
+// Line 42: Export all messages from H2
+ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM messages ORDER BY id");
+
+// File: src/main/java/com/streamingplatform/service/Neo4jSyncService.java
+// Line 98: Get all distinct producers
+String producerQuery = "SELECT DISTINCT producer_id FROM messages WHERE producer_id IS NOT NULL";
+```
+
+#### 🌐 Neo4j (`neo4j/analysis.cypher`)
+```cypher
+// Line 16-18: Select all topics with message counts
+MATCH (t:Topic)<-[:PUBLISHED_TO]-(m:Message)
+RETURN t.name, count(m) as message_count
+ORDER BY message_count DESC;
+```
+
+**File Location:** [`Neo4jManager.java:181-206`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/Neo4jManager.java#L181-L206)
+
+---
+
+### 2. **RC: Relation (Join)**
+Create relationships between entities.
+
+#### 🎨 Frontend (`frontend/server.js`)
+```javascript
+// Line 467-480: Create PUBLISHES_TO relationship
+app.post('/api/relationships/publishes', async (req, res) => {
+    const { producerId, topicName, messageCount = 0 } = req.body;
+    await runQuery(`
+        MATCH (p:Producer {id: $producerId})
+        MATCH (t:Topic {name: $topicName})
+        MERGE (p)-[r:PUBLISHES_TO]->(t)
+        SET r.messageCount = $messageCount, r.lastUpdated = datetime()
+    `);
+});
+
+// Line 489-501: Create SUBSCRIBES_TO relationship
+app.post('/api/relationships/subscribes', async (req, res) => {
+    await runQuery(`
+        MATCH (c:Consumer {id: $consumerId})
+        MATCH (t:Topic {name: $topicName})
+        MERGE (c)-[r:SUBSCRIBES_TO]->(t)
+        SET r.lastUpdated = datetime()
+    `);
+});
+```
+
+#### ☕ Backend Java
+```java
+// File: src/main/java/com/streamingplatform/persistence/Neo4jManager.java
+// Line 108-120: Create PUBLISHES_TO relationship
+public static void createPublishesRelation(String producerId, String topicName, int messageCount) {
+    session.run(
+        "MATCH (p:Producer {id: $producerId}) " +
+        "MATCH (t:Topic {name: $topicName}) " +
+        "MERGE (p)-[r:PUBLISHES_TO]->(t) " +
+        "SET r.messageCount = $messageCount, r.lastUpdated = datetime()"
+    );
+}
+
+// Line 129-140: Create SUBSCRIBES_TO relationship
+public static void createSubscribesRelation(String consumerId, String topicName) {
+    session.run(
+        "MATCH (c:Consumer {id: $consumerId}) " +
+        "MATCH (t:Topic {name: $topicName}) " +
+        "MERGE (c)-[r:SUBSCRIBES_TO]->(t) " +
+        "SET r.lastUpdated = datetime()"
+    );
+}
+```
+
+**File Location:** [`Neo4jManager.java:108-144`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/Neo4jManager.java#L108-L144)
+
+#### 🌐 Neo4j
+```cypher
+// Line 154-159: Join producers with topics
+MATCH (p:Producer)-[r:PUBLISHES_TO]->(t:Topic)
+RETURN p.id as producer, 
+       COUNT(DISTINCT t) as topicCount, 
+       SUM(r.messageCount) as totalMessages
+ORDER BY topicCount DESC
+```
+
+---
+
+### 3. **RF: Filter (Selection)**
+Filter records based on conditions.
+
+#### 🎨 Frontend (`frontend/server.js`)
+```javascript
+// Line 155-158: Filter relationships count
+const relationsResult = await runQuery('MATCH ()-[r]->() RETURN COUNT(r) as count');
+
+// Line 200-204: Filter top 10 producers by activity
+const records = await runQuery(`
+    MATCH (p:Producer)-[r:PUBLISHES_TO]->(t:Topic)
+    RETURN p.id as id, COUNT(DISTINCT t) as topics
+    ORDER BY messages DESC
+    LIMIT 10
+`);
+```
+
+#### ☕ Backend Java
+```java
+// File: src/main/java/com/streamingplatform/persistence/MessageDAO.java
+// Line 32: Filter messages by topic
+String sql = "SELECT content FROM messages WHERE topic = ?";
+
+// File: src/main/java/com/streamingplatform/service/Neo4jSyncService.java
+// Line 98: Filter non-null producers
+String producerQuery = "SELECT DISTINCT producer_id FROM messages WHERE producer_id IS NOT NULL";
+```
+
+**File Location:** [`MessageDAO.java:32`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/MessageDAO.java#L32)
+
+#### 🌐 Neo4j
+```cypher
+// Neo4j constraint filters (unique values)
+CREATE CONSTRAINT IF NOT EXISTS FOR (t:Topic) REQUIRE t.name IS UNIQUE;
+CREATE CONSTRAINT IF NOT EXISTS FOR (p:Producer) REQUIRE p.id IS UNIQUE;
+CREATE CONSTRAINT IF NOT EXISTS FOR (c:Consumer) REQUIRE c.id IS UNIQUE;
+```
+
+**File Location:** [`Neo4jManager.java:43-45`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/Neo4jManager.java#L43-L45)
+
+---
+
+### 4. **RA: Aggregation**
+Perform aggregate operations (COUNT, SUM, AVG, etc.).
+
+#### 🎨 Frontend (`frontend/server.js`)
+```javascript
+// Line 152-158: Count all nodes by type
+const [topicsResult, producersResult, consumersResult] = await Promise.all([
+    runQuery('MATCH (t:Topic) RETURN COUNT(t) as count'),
+    runQuery('MATCH (p:Producer) RETURN COUNT(p) as count'),
+    runQuery('MATCH (c:Consumer) RETURN COUNT(c) as count')
+]);
+
+// Line 177-184: Aggregate message counts by topic
+const records = await runQuery(`
+    MATCH (t:Topic)
+    RETURN t.name as name, COALESCE(t.messageCount, 0) as count
+    ORDER BY count DESC
+    LIMIT 10
+`);
+
+// Line 200-204: Sum messages and count topics per producer
+const records = await runQuery(`
+    MATCH (p:Producer)-[r:PUBLISHES_TO]->(t:Topic)
+    RETURN p.id as id, 
+           COUNT(DISTINCT t) as topics, 
+           SUM(r.messageCount) as messages
+    ORDER BY messages DESC
+    LIMIT 10
+`);
+```
+
+#### ☕ Backend Java
+```java
+// File: src/main/java/com/streamingplatform/service/Neo4jSyncService.java
+// Line 76: Count messages by topic (GROUP BY)
+String query = "SELECT topic, COUNT(*) as cnt FROM messages GROUP BY topic";
+
+// Line 109-112: Count messages per producer-topic pair
+String relQuery = """
+    SELECT producer_id, topic, COUNT(*) as msg_count
+    FROM messages
+    WHERE producer_id IS NOT NULL
+    GROUP BY producer_id, topic
+""";
+```
+
+**File Location:** [`Neo4jSyncService.java:76-120`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/service/Neo4jSyncService.java#L76-L120)
+
+```java
+// File: src/main/java/com/streamingplatform/analysis/DataExporter.java
+// Line 323: Count total messages
+ResultSet rsTotal = conn.createStatement().executeQuery("SELECT COUNT(*) as total FROM messages");
+
+// Line 331: Group by and count
+"SELECT topic, COUNT(*) as count FROM messages GROUP BY topic ORDER BY count DESC"
+```
+
+**File Location:** [`DataExporter.java:323-331`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/analysis/DataExporter.java#L323-L331)
+
+#### 🌐 Neo4j
+```cypher
+// File: src/main/java/com/streamingplatform/persistence/Neo4jManager.java
+// Line 154-159: Aggregate - COUNT DISTINCT and SUM
+MATCH (p:Producer)-[r:PUBLISHES_TO]->(t:Topic)
+RETURN p.id as producer, 
+       COUNT(DISTINCT t) as topicCount, 
+       SUM(r.messageCount) as totalMessages
+ORDER BY topicCount DESC, totalMessages DESC
+LIMIT 10
+
+// Line 186-190: Aggregate with OPTIONAL MATCH
+MATCH (t:Topic)
+OPTIONAL MATCH (p:Producer)-[r:PUBLISHES_TO]->(t)
+RETURN t.name as topic, 
+       t.messageCount as count, 
+       COUNT(DISTINCT p) as producers
+ORDER BY count DESC
+```
+
+**File Location:** [`Neo4jManager.java:149-176`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/Neo4jManager.java#L149-L176)
+
+---
+
+### 5. **RM: Edit (Update/Modify)**
+Update existing records in the database.
+
+#### 🎨 Frontend (`frontend/server.js`)
+```javascript
+// Line 262-284: Update topic
+app.put('/api/topics/:name', async (req, res) => {
+    const { name } = req.params;
+    const { newName, messageCount } = req.body;
+    
+    await runQuery(`
+        MATCH (t:Topic {name: $name})
+        SET t.name = $newName, 
+            t.messageCount = $messageCount,
+            t.lastUpdated = datetime()
+        RETURN t
+    `);
+});
+
+// Line 339-357: Update producer
+app.put('/api/producers/:id', async (req, res) => {
+    await runQuery(`
+        MATCH (p:Producer {id: $id})
+        SET p.id = $newId, p.lastSeen = datetime()
+        RETURN p
+    `);
+});
+
+// Line 411-433: Update consumer
+app.put('/api/consumers/:id', async (req, res) => {
+    await runQuery(`
+        MATCH (c:Consumer {id: $id})
+        SET c.id = $newId, c.group = $group, c.lastSeen = datetime()
+        RETURN c
+    `);
+});
+```
+
+#### ☕ Backend Java
+```java
+// File: src/main/java/com/streamingplatform/persistence/Neo4jManager.java
+// Line 56-65: Upsert (MERGE + SET) topic
+public static void upsertTopic(String topicName, int messageCount) {
+    session.run(
+        "MERGE (t:Topic {name: $name}) " +
+        "SET t.messageCount = $messageCount, t.lastUpdated = datetime()"
+    );
+}
+
+// Line 74-82: Upsert producer
+public static void upsertProducer(String producerId) {
+    session.run(
+        "MERGE (p:Producer {id: $id}) " +
+        "SET p.lastSeen = datetime()"
+    );
+}
+
+// Line 91-99: Upsert consumer
+public static void upsertConsumer(String consumerId) {
+    session.run(
+        "MERGE (c:Consumer {id: $id}) " +
+        "SET c.lastSeen = datetime()"
+    );
+}
+```
+
+**File Location:** [`Neo4jManager.java:56-103`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/persistence/Neo4jManager.java#L56-L103)
+
+```java
+// File: src/main/java/com/streamingplatform/service/MySQLSyncService.java
+// Line 69: Update on duplicate key
+ON DUPLICATE KEY UPDATE message_count = VALUES(message_count), last_seen = CURRENT_TIMESTAMP
+
+// File: src/main/java/com/streamingplatform/service/Neo4jToMySQLSync.java
+// Line 77: Update topics
+ON DUPLICATE KEY UPDATE message_count = VALUES(message_count)
+
+// Line 100: Update producers
+INSERT INTO producers (producer_id) VALUES (?) ON DUPLICATE KEY UPDATE producer_id = VALUES(producer_id)
+```
+
+**File Locations:** 
+- [`MySQLSyncService.java:69`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/service/MySQLSyncService.java#L69)
+- [`Neo4jToMySQLSync.java:77-220`](file:///c:/Users/real2/OneDrive/Desktop/4EME/javaAv/JAVA_PROJECT-wissversion/JAVA_PROJECT-main%20(1)/JAVA_PROJECT-main/src/main/java/com/streamingplatform/service/Neo4jToMySQLSync.java#L77-L220)
+
+#### 🌐 Neo4j
+```cypher
+// MERGE (create if not exists) + SET (update)
+MERGE (t:Topic {name: $name})
+SET t.messageCount = $messageCount, t.lastUpdated = datetime()
+
+// Update relationship properties
+MERGE (p)-[r:PUBLISHES_TO]->(t)
+SET r.messageCount = $messageCount, r.lastUpdated = datetime()
+```
+
+---
+
+### 📊 Summary Table
+
+| Operation | SQL Equivalent | Frontend | Backend | Neo4j |
+|-----------|---------------|----------|---------|-------|
+| **RS: Select All** | `SELECT *` | `MATCH (n) RETURN n` | `SELECT *` | `MATCH (n) RETURN n` |
+| **RC: Relation** | `JOIN` | `MATCH (a)-[r]->(b)` | N/A | `MERGE (a)-[r]->(b)` |
+| **RF: Filter** | `WHERE` | Cypher `WHERE` | `WHERE` in SQL | Cypher `WHERE` |
+| **RA: Aggregation** | `COUNT/SUM/AVG` | `COUNT/SUM` in Cypher | `GROUP BY` | `COUNT/SUM` |
+| **RM: Edit** | `UPDATE` | `SET` in Cypher | `UPDATE / ON DUPLICATE KEY` | `SET / MERGE` |
 
 ---
 
