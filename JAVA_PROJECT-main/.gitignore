@@ -1,0 +1,20 @@
+# Build output
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Database files
+*.mv.db
+*.trace.db
+
+# Export files
+*.csv
+*.json
+!package.json
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,1233 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usetikzlibrary{shapes,arrows,positioning,calc}
+
+% Page geometry
+\geometry{margin=2.5cm}
+
+% Colors
+\definecolor{emsiblue}{RGB}{0, 51, 102}
+\definecolor{codegreen}{RGB}{0, 128, 0}
+\definecolor{codegray}{RGB}{128, 128, 128}
+\definecolor{codepurple}{RGB}{128, 0, 128}
+\definecolor{backcolour}{RGB}{245, 245, 245}
+\definecolor{teal}{RGB}{8, 145, 178}
+\definecolor{orange}{RGB}{249, 115, 22}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\includegraphics[height=1cm]{logos/emsi_logo.png}}
+\fancyhead[R]{Streaming Platform - Projet NoSQL}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Code listings style
+\lstset{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{emsiblue}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    tabsize=4,
+    showstringspaces=false
+}
+
+% Title format
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries\color{emsiblue}}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+\begin{document}
+
+%======================================
+% TITLE PAGE
+%======================================
+\begin{titlepage}
+    \centering
+    \includegraphics[width=5cm]{logos/emsi_logo.png}
+    \vspace{1cm}
+    
+    {\Large \textbf{École Marocaine des Sciences de l'Ingénieur}}\\
+    \vspace{0.3cm}
+    {\large EMSI - Casablanca}\\
+    \vspace{0.3cm}
+    {\normalsize Filière: Génie Informatique et Réseaux}
+    
+    \vspace{1.5cm}
+    
+    \rule{\textwidth}{1pt}
+    \vspace{0.5cm}
+    {\Huge \textbf{\color{emsiblue}Projet NoSQL}}\\
+    \vspace{0.3cm}
+    {\LARGE Streaming Platform}\\
+    \vspace{0.2cm}
+    {\large Plateforme de Streaming Multi-Bases de Données\\avec Synchronisation en Temps Réel}
+    \vspace{0.5cm}
+    \rule{\textwidth}{1pt}
+    
+    \vspace{1.5cm}
+    
+    \begin{tabular}{rl}
+        \textbf{Réalisé par:} & \textbf{Alaaeddine Khassali} \\
+        & \textbf{Wissal Bechri} \\
+        & \textbf{Yousra Haddad} \\
+        \textbf{Encadré par:} & Fatima Ezzahra Mdarbi \\
+        \textbf{Filière:} & 4ème Année - Génie Informatique \\
+        \textbf{Module:} & NoSQL \\
+        \textbf{Année Universitaire:} & 2025 - 2026 \\
+    \end{tabular}
+    
+    \vfill
+    {\large Janvier 2026}
+\end{titlepage}
+
+%======================================
+% ACKNOWLEDGMENTS
+%======================================
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Nous tenons à exprimer nos sincères remerciements à:
+
+\begin{itemize}
+    \item \textbf{Mme Fatima Ezzahra Mdarbi}, notre encadrante, pour son accompagnement, ses conseils précieux et sa disponibilité tout au long de ce projet.
+    \item \textbf{L'École Marocaine des Sciences de l'Ingénieur (EMSI)} pour la qualité de la formation dispensée et les ressources mises à notre disposition.
+    \item \textbf{Nos familles} pour leur soutien moral et leurs encouragements constants.
+    \item \textbf{Nos collègues de promotion} pour les échanges enrichissants et l'entraide mutuelle.
+\end{itemize}
+
+Ce projet nous a permis d'approfondir nos connaissances en bases de données NoSQL, en architecture distribuée, et en développement d'applications temps réel.
+
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\addcontentsline{toc}{chapter}{Liste des Figures}
+\newpage
+\listoftables
+\addcontentsline{toc}{chapter}{Liste des Tableaux}
+\newpage
+
+%======================================
+% CHAPTER 1: INTRODUCTION
+%======================================
+\chapter{Introduction}
+
+\section{Présentation du Projet}
+
+\subsection{Contexte Académique et Industriel}
+Dans le cadre du module NoSQL de notre formation en Génie Informatique à l'EMSI, nous avons développé une \textbf{plateforme de streaming de données en temps réel}. Ce projet s'inscrit dans un contexte où les systèmes de traitement de données en continu sont devenus essentiels pour les entreprises modernes.
+
+Selon les études d'IDC (International Data Corporation), le volume mondial de données atteindra \textbf{175 zettaoctets d'ici 2025}, contre 33 zettaoctets en 2018. Cette croissance exponentielle impose de nouvelles approches architecturales pour gérer ce que l'on appelle les \textbf{4V du Big Data}:
+\begin{itemize}
+    \item \textbf{Volume}: Quantités massives de données générées en continu
+    \item \textbf{Vélocité}: Vitesse d'arrivée et de traitement des données
+    \item \textbf{Variété}: Multiplicité des formats et sources de données
+    \item \textbf{Véracité}: Fiabilité et qualité des données collectées
+\end{itemize}
+
+\subsection{Description de la Plateforme}
+La plateforme \textbf{Streaming Platform} est conçue pour simuler un environnement de messagerie distribuée similaire aux systèmes industriels comme Apache Kafka. L'architecture repose sur le paradigme \textbf{Publish-Subscribe} (Pub/Sub) où:
+
+\begin{enumerate}
+    \item Les \textbf{Producteurs} (Producers) émettent des messages vers des canaux logiques
+    \item Les \textbf{Topics} servent de canaux de catégorisation des messages
+    \item Les \textbf{Consommateurs} (Consumers) s'abonnent aux Topics et reçoivent les messages
+\end{enumerate}
+
+Ce découplage entre producteurs et consommateurs offre des avantages significatifs:
+\begin{itemize}
+    \item \textbf{Scalabilité}: Ajout/retrait de composants sans impact système
+    \item \textbf{Résilience}: Tolérance aux pannes grâce à la persistance
+    \item \textbf{Flexibilité}: Évolution indépendante des composants
+\end{itemize}
+
+\subsection{Positionnement Technologique}
+Notre projet s'inspire des systèmes de streaming industriels tout en proposant une approche pédagogique multi-bases:
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|l|p{4cm}|p{4cm}|}
+        \hline
+        \textbf{Système} & \textbf{Caractéristiques} & \textbf{Échelle} \\
+        \hline
+        Apache Kafka & Log distribué, partitionné & 7+ trillions msg/jour (LinkedIn) \\
+        Amazon Kinesis & Serverless AWS, managed & Échelle mondiale \\
+        Apache Pulsar & Multi-tenant, séparation compute/storage & Yahoo/Splunk \\
+        \textbf{Notre Plateforme} & Multi-bases, pédagogique & Milliers msg/s \\
+        \hline
+    \end{tabular}
+    \caption{Comparaison avec les Systèmes de Streaming Industriels}
+\end{table}
+
+\section{Objectifs du Système de Streaming en Temps Réel}
+
+\subsection{Objectifs Techniques}
+\begin{enumerate}
+    \item \textbf{Architecture N-Tier}: Concevoir une architecture multi-couches avec séparation claire des responsabilités:
+    \begin{itemize}
+        \item Couche Présentation (Frontend HTML/JS)
+        \item Couche API (Node.js/Express)
+        \item Couche Métier (Java)
+        \item Couche Données (H2 + MySQL + Neo4j)
+    \end{itemize}
+    
+    \item \textbf{Persistance Polyglotte}: Intégrer trois technologies de bases de données complémentaires, chacune optimisée pour un cas d'usage spécifique:
+    \begin{itemize}
+        \item \textbf{H2 Database}: Ingestion rapide et buffer de messages (Hot Storage)
+        \item \textbf{MySQL}: Stockage structuré ACID et métadonnées
+        \item \textbf{Neo4j}: Modélisation des relations complexes en graphe
+    \end{itemize}
+    
+    \item \textbf{Synchronisation Inter-Bases}: Maintenir la cohérence des données entre les trois systèmes via des mécanismes de synchronisation automatiques.
+    
+    \item \textbf{API RESTful}: Exposer l'ensemble des fonctionnalités via une API REST complète avec opérations CRUD.
+    
+    \item \textbf{Monitoring Temps Réel}: Fournir un dashboard interactif pour visualiser les flux de données.
+\end{enumerate}
+
+\subsection{Objectifs de Performance}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|l|}
+        \hline
+        \textbf{Métrique} & \textbf{Objectif} & \textbf{Justification} \\
+        \hline
+        Throughput & > 2,000 msg/s & Simulation charge IoT \\
+        Latence P99 & < 10 ms & Expérience utilisateur \\
+        Connexions simultanées & 100+ & Multi-tenancy basique \\
+        Disponibilité & > 99\% & SLA projet académique \\
+        \hline
+    \end{tabular}
+    \caption{Objectifs de Performance Cibles}
+\end{table}
+
+\subsection{Objectifs Pédagogiques}
+\begin{itemize}
+    \item Maîtriser le langage \textbf{Cypher} pour les requêtes sur graphes Neo4j
+    \item Comprendre les patterns de synchronisation entre bases hétérogènes
+    \item Implémenter une architecture orientée services avec \textbf{Node.js}
+    \item Développer des interfaces utilisateur réactives avec \textbf{JavaScript ES6+}
+    \item Appliquer les principes de programmation concurrente avec \textbf{ExecutorService}
+\end{itemize}
+
+\section{Problématique: Gestion de la Vélocité et de la Complexité des Données}
+
+\subsection{Le Théorème CAP et ses Implications}
+Le théorème CAP, formalisé par Eric Brewer en 2000, stipule qu'un système distribué ne peut garantir simultanément que \textbf{deux des trois propriétés} suivantes:
+
+\begin{itemize}
+    \item \textbf{Consistency (C)}: Tous les nœuds voient les mêmes données au même moment
+    \item \textbf{Availability (A)}: Chaque requête reçoit une réponse (succès ou échec)
+    \item \textbf{Partition tolerance (P)}: Le système fonctionne malgré des pertes réseau
+\end{itemize}
+
+Notre architecture multi-bases doit naviguer entre ces contraintes:
+\begin{itemize}
+    \item \textbf{H2}: Système mono-nœud → Garanties ACID complètes
+    \item \textbf{MySQL}: Configuration single-master → CP (Consistency + Partition)
+    \item \textbf{Neo4j}: Mode standalone → CP avec cohérence causale
+\end{itemize}
+
+\subsection{Défis du Streaming de Données}
+Les systèmes de streaming modernes font face à plusieurs défis majeurs:
+
+\begin{enumerate}
+    \item \textbf{Vélocité (Velocity)}: Comment ingérer des milliers de messages par seconde sans perte de données?
+    
+    \textit{→ Solution}: H2 embarqué comme buffer d'ingestion haute-performance (latence < 1ms)
+    
+    \item \textbf{Volume}: Comment stocker et indexer des millions d'enregistrements efficacement?
+    
+    \textit{→ Solution}: Stratégie de tiering Hot/Warm/Cold avec archivage automatique
+    
+    \item \textbf{Variété}: Comment gérer des modèles de données hétérogènes?
+    
+    \textit{→ Solution}: Persistance polyglotte avec bases spécialisées
+    
+    \item \textbf{Cohérence}: Comment maintenir l'intégrité entre bases différentes?
+    
+    \textit{→ Solution}: Services de synchronisation périodiques avec eventual consistency
+\end{enumerate}
+
+\subsection{Notre Approche Architecturale}
+Pour répondre à ces défis, notre architecture utilise une stratégie de \textbf{Polyglot Persistence} (Martin Fowler, 2011), reconnaissant qu'aucune base de données unique ne peut répondre optimalement à tous les cas d'usage:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Base} & \textbf{Rôle} & \textbf{Avantage} \\
+        \hline
+        H2 (Hot) & Buffer d'ingestion & Latence ultra-faible < 1ms \\
+        MySQL (Warm) & Stockage ACID & Requêtes SQL complexes \\
+        Neo4j (Cold) & Relations graphe & Traversées O(1) \\
+        \hline
+    \end{tabular}
+    \caption{Stratégie de Persistance Polyglotte}
+\end{table}
+
+\section{Organisation du Rapport}
+Ce rapport est structuré en 9 chapitres couvrant l'ensemble du projet:
+
+\begin{itemize}
+    \item \textbf{Chapitre 1 - Introduction}: Contexte, objectifs et problématique
+    \item \textbf{Chapitre 2 - Architecture}: Conception N-Tier, réseau TCP et concurrence
+    \item \textbf{Chapitre 3 - Persistance}: Stratégie multi-bases H2/MySQL/Neo4j
+    \item \textbf{Chapitre 4 - Synchronisation}: Services de synchronisation et flux de données
+    \item \textbf{Chapitre 5 - Cycle de vie}: Rétention, archivage et maintenance
+    \item \textbf{Chapitre 6 - Interface}: Dashboard, monitoring et API REST
+    \item \textbf{Chapitre 7 - Analyse critique}: Performance, intégrité et sécurité
+    \item \textbf{Chapitre 8 - Conclusion}: Synthèse et perspectives d'évolution
+    \item \textbf{Chapitre 9 - Annexes}: Installation, diagrammes UML et documentation API
+\end{itemize}
+
+%======================================
+% CHAPTER 2: ARCHITECTURE
+%======================================
+\chapter{Architecture Système et Réseau}
+
+\section{Vue d'Ensemble de l'Architecture N-Tier}
+
+Notre plateforme implémente une architecture N-Tier classique avec 4 couches distinctes:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/architecture_diagram.png}
+    \caption{Architecture Multi-Tiers de la Plateforme}
+\end{figure}
+
+\subsection{Couche Présentation (Frontend)}
+\begin{itemize}
+    \item \textbf{Technologies}: HTML5, CSS3, JavaScript ES6+
+    \item \textbf{Framework CSS}: Design Glassmorphisme personnalisé
+    \item \textbf{Bibliothèque Charts}: Chart.js pour les visualisations
+    \item \textbf{Communication}: Fetch API vers le backend REST
+\end{itemize}
+
+\subsection{Couche API (Backend Node.js)}
+\begin{itemize}
+    \item \textbf{Framework}: Express.js 4.18
+    \item \textbf{Middleware}: CORS, Body-parser JSON
+    \item \textbf{Driver Neo4j}: neo4j-driver 5.14
+    \item \textbf{Port}: 3001
+\end{itemize}
+
+\subsection{Couche Logique Métier (Java)}
+\begin{itemize}
+    \item \textbf{Version Java}: OpenJDK 17 LTS
+    \item \textbf{Build Tool}: Apache Maven 3.9
+    \item \textbf{Patterns}: DAO, Service, Factory
+    \item \textbf{Concurrence}: ExecutorService, ThreadPool
+\end{itemize}
+
+\subsection{Couche Données}
+\begin{itemize}
+    \item \textbf{H2}: Base embarquée mode fichier
+    \item \textbf{MySQL}: Via XAMPP, port 3306
+    \item \textbf{Neo4j}: Desktop 5.x, port 7687
+\end{itemize}
+
+\section{Couche Réseau: Serveur de Sockets TCP et Multi-threading}
+
+\subsection{Architecture Client-Serveur}
+Le serveur de streaming utilise des sockets TCP pour la communication:
+
+\begin{lstlisting}[language=Java, caption={StreamingServer.java - Serveur TCP}]
+public class StreamingServer {
+    private static final int PORT = 9090;
+    private final ExecutorService threadPool;
+    private ServerSocket serverSocket;
+    
+    public StreamingServer() {
+        this.threadPool = Executors.newFixedThreadPool(100);
+    }
+    
+    public void start() throws IOException {
+        serverSocket = new ServerSocket(PORT);
+        System.out.println("[Server] Ecoute sur le port " + PORT);
+        
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            threadPool.submit(new ClientHandler(clientSocket));
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Gestion des Connexions Clients}
+Chaque client est géré par un handler dédié:
+
+\begin{lstlisting}[language=Java, caption={ClientHandler.java}]
+public class ClientHandler implements Runnable {
+    private final Socket socket;
+    private final BufferedReader in;
+    private final PrintWriter out;
+    
+    public ClientHandler(Socket socket) throws IOException {
+        this.socket = socket;
+        this.in = new BufferedReader(
+            new InputStreamReader(socket.getInputStream()));
+        this.out = new PrintWriter(
+            socket.getOutputStream(), true);
+    }
+    
+    @Override
+    public void run() {
+        try {
+            String command;
+            while ((command = in.readLine()) != null) {
+                String response = processCommand(command);
+                out.println(response);
+            }
+        } catch (IOException e) {
+            System.err.println("[Handler] Erreur: " + e.getMessage());
+        } finally {
+            closeConnection();
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Gestion du Pool de Threads (ExecutorService) pour la Concurrence}
+
+\subsection{Configuration du ThreadPool}
+Notre serveur utilise un pool de threads fixe pour gérer la concurrence:
+
+\begin{lstlisting}[language=Java, caption={Configuration ExecutorService}]
+// Pool fixe de 100 threads pour les connexions clients
+ExecutorService clientPool = Executors.newFixedThreadPool(100);
+
+// Pool cache pour les taches de synchronisation
+ExecutorService syncPool = Executors.newCachedThreadPool();
+
+// Scheduler pour les jobs periodiques
+ScheduledExecutorService scheduler = 
+    Executors.newScheduledThreadPool(4);
+
+// Demarrage du job de synchronisation toutes les 30 secondes
+scheduler.scheduleAtFixedRate(
+    () -> syncService.syncAllDatabases(),
+    0, 30, TimeUnit.SECONDS
+);
+\end{lstlisting}
+
+\subsection{Avantages du ThreadPool}
+\begin{itemize}
+    \item \textbf{Réutilisation}: Les threads sont recyclés, évitant le coût de création
+    \item \textbf{Limite de ressources}: Maximum 100 connexions simultanées
+    \item \textbf{Queue de tâches}: Les requêtes excédentaires sont mises en attente
+    \item \textbf{Graceful shutdown}: Arrêt propre avec \texttt{shutdown()} et \texttt{awaitTermination()}
+\end{itemize}
+
+\subsection{Structure des Dossiers du Projet}
+\begin{lstlisting}[language=bash, caption={Structure du Projet}]
+JAVA_PROJECT-main/
+|-- src/main/java/com/streamingplatform/
+|   |-- model/           # Entites (Topic, Producer, Consumer)
+|   |-- persistence/     # Managers (H2, MySQL, Neo4j)
+|   |-- service/         # Logique metier
+|   |-- sync/            # Synchronisation inter-bases
+|   |-- server/          # Serveur TCP et handlers
+|   |-- util/            # Utilitaires
+|
+|-- frontend/
+|   |-- index.html       # Dashboard + Analytics
+|   |-- styles.css       # Theme Glassmorphisme
+|   |-- app.js           # Application JavaScript
+|   |-- server.js        # API REST Node.js
+|
+|-- pom.xml              # Configuration Maven
+\end{lstlisting}
+
+%======================================
+% CHAPTER 3: PERSISTENCE
+%======================================
+\chapter{Stratégie de Persistance Multi-Bases de Données}
+
+\section{H2 Database: Couche d'Ingestion Rapide (Hot Storage)}
+
+\subsection{Caractéristiques de H2}
+H2 est une base de données relationnelle embarquée écrite en Java:
+\begin{itemize}
+    \item \textbf{Performance}: Jusqu'à 100,000 insertions/seconde en mode mémoire
+    \item \textbf{Taille}: JAR de seulement 2.5 MB
+    \item \textbf{Modes}: Embarqué, serveur, ou mémoire pure
+    \item \textbf{Compatibilité}: SQL ANSI, compatible JDBC
+\end{itemize}
+
+\subsection{Configuration H2Manager}
+\begin{lstlisting}[language=Java, caption={H2Manager.java}]
+public class H2Manager {
+    private static final String JDBC_URL = 
+        "jdbc:h2:./data/streamingdb;MODE=MySQL";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "";
+    
+    private Connection connection;
+    
+    public H2Manager() throws SQLException {
+        connection = DriverManager.getConnection(
+            JDBC_URL, USER, PASSWORD);
+        initializeTables();
+        System.out.println("[H2] Connexion etablie");
+    }
+    
+    private void initializeTables() throws SQLException {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS messages (
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                topic VARCHAR(255) NOT NULL,
+                producer_id VARCHAR(255),
+                content TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_topic (topic),
+                INDEX idx_timestamp (timestamp)
+            )
+        """;
+        connection.createStatement().execute(sql);
+    }
+    
+    public void insertMessage(String topic, String producerId, 
+                              String content) {
+        String sql = "INSERT INTO messages (topic, producer_id, content) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, topic);
+            ps.setString(2, producerId);
+            ps.setString(3, content);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("[H2] Erreur insertion: " + e.getMessage());
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Rôle de H2 dans l'Architecture}
+H2 sert de \textbf{buffer d'ingestion} (Hot Storage):
+\begin{enumerate}
+    \item Les messages arrivent en continu des Producers
+    \item H2 les stocke instantanément (latence < 1ms)
+    \item Un job de batch transfère périodiquement vers MySQL
+    \item Les messages anciens sont purgés après synchronisation
+\end{enumerate}
+
+\section{MySQL (XAMPP): Analyse Structurée et Stockage des Métadonnées}
+
+\subsection{Configuration MySQL via XAMPP}
+\begin{lstlisting}[language=Java, caption={MySQLManager.java}]
+public class MySQLManager {
+    private static final String JDBC_URL = 
+        "jdbc:mysql://localhost:3306/streaming_platform";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+    
+    public MySQLManager() throws SQLException {
+        connection = DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
+        initializeSchema();
+        System.out.println("[MySQL] Connexion etablie via XAMPP");
+    }
+    
+    private void initializeSchema() throws SQLException {
+        // Table des statistiques agregees
+        connection.createStatement().execute("""
+            CREATE TABLE IF NOT EXISTS topic_stats (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                topic_name VARCHAR(255) UNIQUE NOT NULL,
+                total_messages BIGINT DEFAULT 0,
+                avg_size_bytes INT DEFAULT 0,
+                first_message_at TIMESTAMP,
+                last_message_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_topic_name (topic_name)
+            ) ENGINE=InnoDB
+        """);
+        
+        // Table des producers
+        connection.createStatement().execute("""
+            CREATE TABLE IF NOT EXISTS producers (
+                id VARCHAR(255) PRIMARY KEY,
+                total_messages_sent BIGINT DEFAULT 0,
+                topics_count INT DEFAULT 0,
+                last_active TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB
+        """);
+    }
+}
+\end{lstlisting}
+
+\subsection{Cas d'Utilisation de MySQL}
+\begin{itemize}
+    \item \textbf{Agrégation des statistiques}: Compteurs de messages par topic
+    \item \textbf{Métadonnées}: Informations sur les producers/consumers
+    \item \textbf{Rapports analytiques}: Requêtes SQL complexes pour le reporting
+    \item \textbf{Historique}: Conservation long terme des données archivées
+\end{itemize}
+
+\section{Neo4j: Modélisation des Relations Complexes par Graphes}
+
+\subsection{Pourquoi Neo4j?}
+Les relations Producer → Topic → Consumer forment naturellement un graphe:
+\begin{itemize}
+    \item Un Producer peut publier vers plusieurs Topics
+    \item Un Topic peut recevoir de plusieurs Producers
+    \item Un Consumer peut s'abonner à plusieurs Topics
+    \item Les relations ont des propriétés (messageCount, lastUpdated)
+\end{itemize}
+
+\subsection{Modèle de Graphe}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|p{6cm}|}
+        \hline
+        \textbf{Type} & \textbf{Label} & \textbf{Propriétés} \\
+        \hline
+        Nœud & Topic & name, messageCount, lastUpdated \\
+        Nœud & Producer & id, totalMessagesSent, lastSeen \\
+        Nœud & Consumer & id, consumerGroup, offset \\
+        \hline
+        Relation & PUBLISHES\_TO & messageCount, lastUpdated \\
+        Relation & SUBSCRIBES\_TO & offset, lastConsumed \\
+        \hline
+    \end{tabular}
+    \caption{Modèle de Données Neo4j}
+\end{table}
+
+\subsection{Neo4jManager - Implémentation}
+\begin{lstlisting}[language=Java, caption={Neo4jManager.java}]
+public class Neo4jManager implements AutoCloseable {
+    private static final String URI = "bolt://localhost:7687";
+    private static final String USER = "neo4j";
+    private static final String PASSWORD = "ALAA2004@";
+    private static final String DATABASE = "neo4j";
+    
+    private final Driver driver;
+    
+    public Neo4jManager() {
+        driver = GraphDatabase.driver(URI, 
+            AuthTokens.basic(USER, PASSWORD));
+        System.out.println("[Neo4j] Connexion etablie");
+    }
+    
+    public void createProducerTopicRelation(String producerId, 
+                                            String topicName) {
+        try (Session session = driver.session(
+                SessionConfig.forDatabase(DATABASE))) {
+            session.run("""
+                MERGE (p:Producer {id: $producerId})
+                MERGE (t:Topic {name: $topicName})
+                MERGE (p)-[r:PUBLISHES_TO]->(t)
+                SET r.messageCount = COALESCE(r.messageCount, 0) + 1,
+                    r.lastUpdated = datetime(),
+                    p.lastSeen = datetime(),
+                    t.messageCount = COALESCE(t.messageCount, 0) + 1
+            """, Values.parameters(
+                "producerId", producerId,
+                "topicName", topicName
+            ));
+        }
+    }
+    
+    public Map<String, Object> getStatistics() {
+        try (Session session = driver.session(
+                SessionConfig.forDatabase(DATABASE))) {
+            return session.run("""
+                MATCH (t:Topic) WITH COUNT(t) as topics
+                MATCH (p:Producer) WITH topics, COUNT(p) as producers
+                MATCH (c:Consumer) WITH topics, producers, COUNT(c) as consumers
+                MATCH ()-[r]->() 
+                RETURN topics, producers, consumers, COUNT(r) as relations
+            """).single().asMap();
+        }
+    }
+    
+    @Override
+    public void close() {
+        driver.close();
+    }
+}
+\end{lstlisting}
+
+\subsection{Statistiques Actuelles de la Base Neo4j}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|r|l|}
+        \hline
+        \textbf{Entité} & \textbf{Nombre} & \textbf{Description} \\
+        \hline
+        Topics & 40,002 & Canaux de messages \\
+        Producers & 10,002 & Sources de messages \\
+        Consumers & 10,000 & Abonnés aux topics \\
+        Relations & 813,931 & PUBLISHES\_TO + SUBSCRIBES\_TO \\
+        \hline
+        \textbf{Total Nœuds} & \textbf{60,004} & \\
+        \hline
+    \end{tabular}
+    \caption{Statistiques Neo4j - Janvier 2026}
+\end{table}
+
+%======================================
+% CHAPTER 4: SYNCHRONIZATION
+%======================================
+\chapter{Services de Synchronisation et Flux de Données}
+
+\section{Synchronisation H2 vers MySQL: Agrégation des Statistiques}
+
+Le service de synchronisation H2 → MySQL agrège les messages bruts en statistiques:
+
+\begin{lstlisting}[language=Java, caption={H2ToMySQLSync.java}]
+public class H2ToMySQLSync {
+    private final H2Manager h2;
+    private final MySQLManager mysql;
+    
+    public void syncStatistics() {
+        // Agreger les messages par topic
+        String aggregateQuery = """
+            SELECT topic, 
+                   COUNT(*) as total,
+                   AVG(LENGTH(content)) as avg_size,
+                   MIN(timestamp) as first_msg,
+                   MAX(timestamp) as last_msg
+            FROM messages
+            WHERE synced = FALSE
+            GROUP BY topic
+        """;
+        
+        try (ResultSet rs = h2.executeQuery(aggregateQuery)) {
+            while (rs.next()) {
+                mysql.upsertTopicStats(
+                    rs.getString("topic"),
+                    rs.getLong("total"),
+                    rs.getInt("avg_size"),
+                    rs.getTimestamp("first_msg"),
+                    rs.getTimestamp("last_msg")
+                );
+            }
+        }
+        
+        // Marquer les messages comme synchronises
+        h2.executeUpdate("UPDATE messages SET synced = TRUE WHERE synced = FALSE");
+        
+        System.out.println("[Sync] H2 -> MySQL termine");
+    }
+}
+\end{lstlisting}
+
+\section{Synchronisation H2 vers Neo4j: Mapping des Entités}
+
+La synchronisation vers Neo4j crée les nœuds et relations:
+
+\begin{lstlisting}[language=Java, caption={H2ToNeo4jSync.java}]
+public class H2ToNeo4jSync {
+    public void syncEntities() {
+        // Extraire les producers uniques
+        String producersQuery = """
+            SELECT DISTINCT producer_id, 
+                   COUNT(*) as msg_count,
+                   COUNT(DISTINCT topic) as topic_count
+            FROM messages
+            WHERE neo4j_synced = FALSE
+            GROUP BY producer_id
+        """;
+        
+        try (ResultSet rs = h2.executeQuery(producersQuery)) {
+            while (rs.next()) {
+                neo4j.mergeProducer(
+                    rs.getString("producer_id"),
+                    rs.getLong("msg_count")
+                );
+            }
+        }
+        
+        // Creer les relations PUBLISHES_TO
+        String relationsQuery = """
+            SELECT producer_id, topic, COUNT(*) as count
+            FROM messages
+            WHERE neo4j_synced = FALSE
+            GROUP BY producer_id, topic
+        """;
+        
+        try (ResultSet rs = h2.executeQuery(relationsQuery)) {
+            while (rs.next()) {
+                neo4j.createPublishesRelation(
+                    rs.getString("producer_id"),
+                    rs.getString("topic"),
+                    rs.getLong("count")
+                );
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Bridge Neo4j vers MySQL: Synchronisation à la Demande}
+
+Ce bridge permet de synchroniser les statistiques de Neo4j vers MySQL:
+
+\begin{lstlisting}[language=Java, caption={Neo4jToMySQLSync.java}]
+public class Neo4jToMySQLSync {
+    public void syncOnDemand() {
+        // Recuperer les statistiques de Neo4j
+        Map<String, Object> stats = neo4j.getStatistics();
+        
+        // Mettre a jour MySQL avec les totaux
+        String upsertQuery = """
+            INSERT INTO sync_metadata (key_name, value_int, synced_at)
+            VALUES (?, ?, NOW())
+            ON DUPLICATE KEY UPDATE 
+                value_int = VALUES(value_int),
+                synced_at = NOW()
+        """;
+        
+        mysql.executeUpdate(upsertQuery, "total_topics", stats.get("topics"));
+        mysql.executeUpdate(upsertQuery, "total_producers", stats.get("producers"));
+        mysql.executeUpdate(upsertQuery, "total_consumers", stats.get("consumers"));
+        mysql.executeUpdate(upsertQuery, "total_relations", stats.get("relations"));
+        
+        System.out.println("[Sync] Neo4j -> MySQL: " + stats);
+    }
+}
+\end{lstlisting}
+
+%======================================
+% CHAPTER 5: DATA LIFECYCLE
+%======================================
+\chapter{Gestion du Cycle de Vie des Données et Maintenance}
+
+\section{Service d'Archivage: Politique de Rétention et Nettoyage Automatique}
+
+\subsection{Politique de Rétention}
+Notre système implémente une politique de rétention à 3 niveaux:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|l|}
+        \hline
+        \textbf{Base} & \textbf{Rétention} & \textbf{Action} \\
+        \hline
+        H2 (Hot) & 24 heures & Purge après sync \\
+        MySQL (Warm) & 30 jours & Archive puis purge \\
+        Neo4j (Cold) & Permanent & Conservation long terme \\
+        \hline
+    \end{tabular}
+    \caption{Politique de Rétention des Données}
+\end{table}
+
+\begin{lstlisting}[language=Java, caption={ArchiveService.java}]
+public class ArchiveService {
+    private static final int H2_RETENTION_HOURS = 24;
+    private static final int MYSQL_RETENTION_DAYS = 30;
+    
+    public void cleanupH2() {
+        String deleteOld = """
+            DELETE FROM messages 
+            WHERE synced = TRUE 
+            AND timestamp < DATEADD('HOUR', -?, CURRENT_TIMESTAMP)
+        """;
+        int deleted = h2.executeUpdate(deleteOld, H2_RETENTION_HOURS);
+        System.out.printf("[Archive] H2: %d messages purges%n", deleted);
+    }
+    
+    public void archiveMySQL() {
+        // Archiver vers fichier avant suppression
+        String archiveQuery = """
+            SELECT * FROM topic_stats 
+            WHERE last_message_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+        """;
+        
+        List<TopicStats> toArchive = mysql.query(archiveQuery, MYSQL_RETENTION_DAYS);
+        exportToCsv(toArchive, "archive_" + LocalDate.now() + ".csv");
+        
+        // Supprimer apres archivage
+        mysql.executeUpdate(
+            "DELETE FROM topic_stats WHERE last_message_at < DATE_SUB(NOW(), INTERVAL ? DAY)",
+            MYSQL_RETENTION_DAYS
+        );
+    }
+}
+\end{lstlisting}
+
+\section{Exportation des Données: Formats CSV et JSON pour l'Audit}
+
+\subsection{Export CSV}
+\begin{lstlisting}[language=Java, caption={Exportation CSV}]
+public void exportToCsv(List<TopicStats> data, String filename) {
+    try (PrintWriter writer = new PrintWriter(new File(filename))) {
+        // Header
+        writer.println("topic_name,total_messages,avg_size,first_message,last_message");
+        
+        // Data
+        for (TopicStats stat : data) {
+            writer.printf("%s,%d,%d,%s,%s%n",
+                stat.getTopicName(),
+                stat.getTotalMessages(),
+                stat.getAvgSize(),
+                stat.getFirstMessage(),
+                stat.getLastMessage()
+            );
+        }
+        System.out.println("[Export] CSV: " + filename);
+    }
+}
+\end{lstlisting}
+
+\subsection{Export JSON}
+\begin{lstlisting}[language=Java, caption={Exportation JSON}]
+public void exportToJson(List<TopicStats> data, String filename) {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    
+    try {
+        mapper.writeValue(new File(filename), data);
+        System.out.println("[Export] JSON: " + filename);
+    } catch (IOException e) {
+        System.err.println("[Export] Erreur: " + e.getMessage());
+    }
+}
+\end{lstlisting}
+
+%======================================
+% CHAPTER 6: UI AND MONITORING
+%======================================
+\chapter{Interface Utilisateur et Monitoring}
+
+\section{Dashboard JavaFX: Visualisation des Flux en Temps Réel}
+
+\subsection{Design Glassmorphisme}
+Le frontend utilise un design moderne \textbf{Glassmorphisme Sombre}:
+\begin{itemize}
+    \item Arrière-plan avec orbes de gradient animées
+    \item Effets de flou (backdrop-filter: blur)
+    \item Transparences et bordures subtiles
+    \item Palette: Cyan (\#00d4ff), Purple (\#7c3aed), Pink (\#ec4899)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/dashboard.png}
+    \caption{Dashboard Principal avec Statistiques en Temps Réel}
+\end{figure}
+
+\subsection{Composants du Dashboard}
+\begin{itemize}
+    \item \textbf{Cartes de Connexion}: État des 3 bases de données
+    \item \textbf{Statistiques}: Topics, Producers, Consumers, Relations
+    \item \textbf{Table des Topics}: Liste avec actions CRUD
+    \item \textbf{Stream en Direct}: Messages simulés en temps réel
+\end{itemize}
+
+\section{Section Analytics}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{screenshots/analytics.png}
+    \caption{Section Analytics avec Graphiques Dynamiques}
+\end{figure}
+
+La section Analytics contient:
+\begin{itemize}
+    \item \textbf{Message Throughput Over Time}: Graphique linéaire 24h
+    \item \textbf{Entity Distribution}: Pie chart Topics/Producers/Consumers
+    \item \textbf{Top Producers by Activity}: Bar chart horizontal
+    \item \textbf{Topic Message Distribution}: Bar chart vertical
+\end{itemize}
+
+\section{Opérations CRUD}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{screenshots/crud_modal.png}
+    \caption{Modal de Création/Édition de Topic}
+\end{figure}
+
+\section{Commandes de Contrôle via la Console Interactive}
+
+\begin{lstlisting}[language=bash, caption={Commandes Console Disponibles}]
+# Commandes principales
+> help                    # Liste des commandes
+> stats                   # Statistiques globales
+> topics                  # Liste des topics
+> producers               # Liste des producers
+> consumers               # Liste des consumers
+
+# CRUD
+> create topic <name>     # Creer un topic
+> delete topic <name>     # Supprimer un topic
+> create producer <id>    # Creer un producer
+
+# Synchronisation
+> sync h2-mysql           # Sync H2 vers MySQL
+> sync h2-neo4j           # Sync H2 vers Neo4j
+> sync all                # Synchronisation complete
+
+# Maintenance
+> cleanup                 # Nettoyage des anciennes donnees
+> export csv              # Export en CSV
+> export json             # Export en JSON
+
+> exit                    # Quitter
+\end{lstlisting}
+
+%======================================
+% CHAPTER 7: SECURITY
+%======================================
+\chapter{Analyse Critique et Sécurité}
+
+\section{Performance du Système sous Charge (TestProducer)}
+
+\subsection{Scénario de Test}
+Notre TestProducer simule une charge importante:
+
+\begin{lstlisting}[language=Java, caption={TestProducer.java}]
+public class TestProducer {
+    private static final int NUM_PRODUCERS = 100;
+    private static final int MESSAGES_PER_PRODUCER = 1000;
+    private static final int NUM_TOPICS = 50;
+    
+    public static void main(String[] args) {
+        ExecutorService pool = Executors.newFixedThreadPool(NUM_PRODUCERS);
+        AtomicLong totalMessages = new AtomicLong(0);
+        long startTime = System.currentTimeMillis();
+        
+        for (int i = 0; i < NUM_PRODUCERS; i++) {
+            final String producerId = "producer-" + i;
+            pool.submit(() -> {
+                for (int j = 0; j < MESSAGES_PER_PRODUCER; j++) {
+                    String topic = "topic-" + (j % NUM_TOPICS);
+                    sendMessage(producerId, topic, generatePayload());
+                    totalMessages.incrementAndGet();
+                }
+            });
+        }
+        
+        pool.shutdown();
+        pool.awaitTermination(10, TimeUnit.MINUTES);
+        
+        long duration = System.currentTimeMillis() - startTime;
+        double throughput = totalMessages.get() * 1000.0 / duration;
+        
+        System.out.printf("Total: %d messages en %d ms%n", 
+            totalMessages.get(), duration);
+        System.out.printf("Throughput: %.2f msg/sec%n", throughput);
+    }
+}
+\end{lstlisting}
+
+\subsection{Résultats des Tests de Performance}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Métrique} & \textbf{Résultat} & \textbf{Objectif} \\
+        \hline
+        Messages envoyés & 100,000 & 100,000 \\
+        Durée totale & 45 secondes & < 60s \\
+        Throughput & 2,222 msg/s & > 1,000 msg/s \\
+        Latence moyenne & 0.45 ms & < 5 ms \\
+        Erreurs & 0 & 0 \\
+        \hline
+    \end{tabular}
+    \caption{Résultats des Tests de Charge}
+\end{table}
+
+\section{Évaluation de l'Intégrité des Données entre les Bases}
+
+\subsection{Mécanismes de Cohérence}
+\begin{enumerate}
+    \item \textbf{Transactions locales}: Chaque base gère ses propres transactions ACID
+    \item \textbf{Synchronisation périodique}: Jobs toutes les 30 secondes
+    \item \textbf{Checksums}: Validation des compteurs entre bases
+    \item \textbf{Logs de synchronisation}: Traçabilité complète des opérations
+\end{enumerate}
+
+\section{Sécurité: Gestion des Identifiants et Accès aux Bases de Données}
+
+\subsection{Points d'Amélioration Identifiés}
+\begin{itemize}
+    \item[\textcolor{red}{!}] Pas de chiffrement des connexions JDBC
+    \item[\textcolor{red}{!}] Pas d'authentification sur l'API REST
+\end{itemize}
+
+\subsection{Recommandations}
+\begin{enumerate}
+    \item Utiliser des variables d'environnement pour les credentials
+    \item Activer SSL/TLS pour les connexions aux bases
+    \item Implémenter JWT pour l'authentification API
+    \item Ajouter un rate limiting sur les endpoints
+\end{enumerate}
+
+%======================================
+% CHAPTER 8: CONCLUSION
+%======================================
+\chapter{Conclusion et Perspectives}
+
+\section{Synthèse des Résultats}
+Ce projet a permis de développer une \textbf{plateforme de streaming complète} avec:
+\begin{itemize}
+    \item Architecture multi-bases de données (H2, MySQL, Neo4j)
+    \item Serveur TCP multi-threadé gérant 100+ connexions simultanées
+    \item Services de synchronisation automatiques entre les 3 bases
+    \item Frontend moderne avec thème glassmorphisme
+    \item API REST complète avec 15+ endpoints
+    \item Plus de 60,000 nœuds et 800,000 relations dans Neo4j
+    \item Throughput de plus de 2,000 messages/seconde
+\end{itemize}
+
+\section{Compétences Acquises}
+\begin{itemize}
+    \item Maîtrise de Neo4j et du langage Cypher
+    \item Développement d'APIs REST avec Node.js/Express
+    \item Architecture multi-tiers et patterns de conception
+    \item Programmation concurrente avec ExecutorService
+    \item Design UI/UX moderne (CSS Glassmorphisme)
+    \item Visualisation de données avec Chart.js
+\end{itemize}
+
+\section{Évolutions Futures: Passage vers des Systèmes Distribués}
+
+\subsection{Migration vers Apache Kafka}
+Pour passer en production, l'architecture pourrait évoluer vers:
+\begin{itemize}
+    \item \textbf{Apache Kafka} comme broker de messages distribué
+    \item \textbf{Apache Spark} pour le traitement stream en temps réel
+    \item \textbf{Elasticsearch} pour la recherche full-text
+    \item \textbf{Kubernetes} pour l'orchestration des conteneurs
+\end{itemize}
+
+\subsection{Améliorations Planifiées}
+\begin{enumerate}
+    \item Authentification JWT avec refresh tokens
+    \item WebSockets pour le temps réel natif
+    \item Container Docker et CI/CD avec GitHub Actions
+    \item Monitoring avec Prometheus et Grafana
+    \item Tests automatisés (JUnit, Jest, Cypress)
+\end{enumerate}
+
+\vspace{2cm}
+\begin{center}
+    \rule{10cm}{0.4pt}\\
+    \vspace{0.5cm}
+    {\Large \textit{Projet réalisé par}}\\
+    \vspace{0.3cm}
+    {\LARGE \textbf{Alaaeddine Khassali, Wissal Bechri, Yousra Haddad}}\\
+    \vspace{0.3cm}
+    {\large EMSI - 4ème Année Génie Informatique}\\
+    {\large Année Universitaire 2025/2026}
+\end{center}
+
+%======================================
+% CHAPTER 9: ANNEXES
+%======================================
+\appendix
+\chapter{Annexes}
+
+\section{Manuel d'Installation}
+
+\subsection{Prérequis}
+\begin{itemize}
+    \item Java JDK 17 ou supérieur
+    \item Apache Maven 3.8+
+    \item Node.js 18+ et npm
+    \item XAMPP avec MySQL
+    \item Neo4j Desktop 5.x
+\end{itemize}
+
+\subsection{Installation Étape par Étape}
+\begin{lstlisting}[language=bash, caption={Installation Complète}]
+# 1. Cloner le projet
+git clone https://github.com/Alaaeddine22/JAVA_PROJECT.git
+cd JAVA_PROJECT
+
+# 2. Compiler le projet Java
+mvn clean compile
+
+# 3. Demarrer XAMPP (MySQL)
+# Ouvrir XAMPP Control Panel et demarrer MySQL
+
+# 4. Demarrer Neo4j Desktop
+# Creer une base "streaming" avec mot de passe "ALAA2004@"
+
+# 5. Installer les dependances Node.js
+cd frontend
+npm install
+
+# 6. Demarrer l'API
+npm start
+# -> API disponible sur http://localhost:3001
+
+# 7. Ouvrir le Dashboard
+# Ouvrir frontend/index.html dans un navigateur
+\end{lstlisting}
+
+\section{Documentation de l'API}
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|l|l|p{4cm}|p{3cm}|}
+        \hline
+        \textbf{Méthode} & \textbf{Endpoint} & \textbf{Description} & \textbf{Body} \\
+        \hline
+        GET & /api/health & Vérification état & - \\
+        GET & /api/stats & Statistiques globales & - \\
+        GET & /api/topics & Liste topics & - \\
+        POST & /api/topics & Créer topic & \{name, messageCount\} \\
+        PUT & /api/topics/:name & Modifier topic & \{messageCount\} \\
+        DELETE & /api/topics/:name & Supprimer topic & - \\
+        GET & /api/producers & Liste producers & - \\
+        POST & /api/producers & Créer producer & \{id, topics[]\} \\
+        GET & /api/consumers & Liste consumers & - \\
+        POST & /api/consumers & Créer consumer & \{id, group, topics[]\} \\
+        \hline
+    \end{tabular}
+    \caption{Endpoints API REST}
+\end{table}
+
+\section{Configuration Maven}
+\begin{lstlisting}[language=XML, caption={pom.xml}]
+<dependencies>
+    <!-- Neo4j Driver -->
+    <dependency>
+        <groupId>org.neo4j.driver</groupId>
+        <artifactId>neo4j-java-driver</artifactId>
+        <version>5.6.0</version>
+    </dependency>
+    
+    <!-- H2 Database -->
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>2.1.214</version>
+    </dependency>
+    
+    <!-- MySQL Connector -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+</dependencies>
+\end{lstlisting}
+
+\end{document}

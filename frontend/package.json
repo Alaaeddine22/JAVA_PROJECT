@@ -1,0 +1,15 @@
+{
+  "name": "streaming-platform-api",
+  "version": "1.0.0",
+  "description": "API server for Streaming Platform frontend - connects to Neo4j database",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "neo4j-driver": "^5.14.0"
+  }
+}

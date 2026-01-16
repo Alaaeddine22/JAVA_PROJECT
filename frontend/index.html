@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Platform Dashboard</title>
+    <meta name="description" content="Real-time data streaming platform with CRUD management">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <img src="logo.png" alt="Logo"
+                    style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+            </div>
+            <span class="logo-text">Streaming Platform</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-section="topics">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+                <span>Topics</span>
+            </a>
+            <a href="#" class="nav-item" data-section="producers">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="10,8 16,12 10,16" />
+                </svg>
+                <span>Producers</span>
+            </a>
+            <a href="#" class="nav-item" data-section="consumers">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7,10 12,15 17,10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Consumers</span>
+            </a>
+            <a href="#" class="nav-item" data-section="analytics">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+                <span>Analytics</span>
+            </a>
+        </nav>
+
+        <div class="nav-footer">
+            <a href="#" class="nav-item" id="sync-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23,4 23,10 17,10" />
+                    <polyline points="1,20 1,14 7,14" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                <span>Refresh</span>
+            </a>
+            <a href="#" class="nav-item" id="export-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17,8 12,3 7,8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>Export</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Dashboard</h1>
+                <p class="header-subtitle">Real-time streaming platform monitoring</p>
+            </div>
+            <div class="header-right">
+                <div class="sync-status">
+                    <span class="status-dot active"></span>
+                    <span>Live</span>
+                </div>
+                <div class="last-update" id="last-update">Updated just now</div>
+            </div>
+        </header>
+
+        <!-- Database Status Cards -->
+        <section class="db-status-section">
+            <div class="section-title">
+                <h2>Database Connections</h2>
+                <span class="badge">3 Active</span>
+            </div>
+            <div class="db-cards">
+                <div class="db-card h2-card">
+                    <div class="db-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" />
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                        </svg>
+                    </div>
+                    <div class="db-info">
+                        <h3>H2 Database</h3>
+                        <p class="db-url">jdbc:h2:./streamingservice_db</p>
+                        <div class="db-stats">
+                            <span class="stat">
+                                <span class="stat-value" id="h2-messages">0</span>
+                                <span class="stat-label">Messages</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="db-status online"><span class="pulse"></span>Online</div>
+                </div>
+
+                <div class="db-card mysql-card">
+                    <div class="db-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <div class="db-info">
+                        <h3>MySQL (XAMPP)</h3>
+                        <p class="db-url">localhost:3306/streamingplatform</p>
+                        <div class="db-stats">
+                            <span class="stat">
+                                <span class="stat-value" id="mysql-topics">0</span>
+                                <span class="stat-label">Topics</span>
+                            </span>
+                            <span class="stat">
+                                <span class="stat-value" id="mysql-producers">0</span>
+                                <span class="stat-label">Producers</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="db-status online"><span class="pulse"></span>Online</div>
+                </div>
+
+                <div class="db-card neo4j-card">
+                    <div class="db-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <circle cx="19" cy="5" r="2" />
+                            <circle cx="5" cy="5" r="2" />
+                            <circle cx="19" cy="19" r="2" />
+                            <circle cx="5" cy="19" r="2" />
+                        </svg>
+                    </div>
+                    <div class="db-info">
+                        <h3>Neo4j Graph</h3>
+                        <p class="db-url">bolt://localhost:7687</p>
+                        <div class="db-stats">
+                            <span class="stat">
+                                <span class="stat-value" id="neo4j-nodes">0</span>
+                                <span class="stat-label">Nodes</span>
+                            </span>
+                            <span class="stat">
+                                <span class="stat-value" id="neo4j-relations">0</span>
+                                <span class="stat-label">Relations</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="db-status online"><span class="pulse"></span>Online</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Overview -->
+        <section class="stats-section">
+            <div class="stat-card clickable" onclick="openModal('topic')">
+                <div class="stat-icon topics-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="total-topics">0</span>
+                    <span class="stat-label">Total Topics</span>
+                </div>
+                <button class="add-btn" onclick="event.stopPropagation(); openModal('topic')">+ Add</button>
+            </div>
+
+            <div class="stat-card clickable" onclick="openModal('producer')">
+                <div class="stat-icon producers-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polygon points="10,8 16,12 10,16" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="total-producers">0</span>
+                    <span class="stat-label">Producers</span>
+                </div>
+                <button class="add-btn" onclick="event.stopPropagation(); openModal('producer')">+ Add</button>
+            </div>
+
+            <div class="stat-card clickable" onclick="openModal('consumer')">
+                <div class="stat-icon consumers-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7,10 12,15 17,10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="total-consumers">0</span>
+                    <span class="stat-label">Consumers</span>
+                </div>
+                <button class="add-btn" onclick="event.stopPropagation(); openModal('consumer')">+ Add</button>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon messages-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="total-messages">0</span>
+                    <span class="stat-label">Relations</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Topics Panel with CRUD -->
+            <section class="panel topics-panel">
+                <div class="panel-header">
+                    <h3>Topics Management</h3>
+                    <button class="btn-primary" onclick="openModal('topic')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                            height="16">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Add Topic
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <table class="data-table" id="topics-table">
+                        <thead>
+                            <tr>
+                                <th>Topic Name</th>
+                                <th>Messages</th>
+                                <th>Producers</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Message Stream -->
+            <section class="panel stream-panel">
+                <div class="panel-header">
+                    <h3>Live Message Stream</h3>
+                    <div class="stream-controls">
+                        <button class="stream-btn active" id="play-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5,3 19,12 5,21" />
+                            </svg>
+                        </button>
+                        <button class="stream-btn" id="pause-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="6" y="4" width="4" height="16" />
+                                <rect x="14" y="4" width="4" height="16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-content stream-container" id="message-stream"></div>
+            </section>
+
+            <!-- Charts Row -->
+            <section class="panel chart-panel">
+                <div class="panel-header">
+                    <h3>Message Throughput</h3>
+                    <select class="chart-select" id="chart-timeframe">
+                        <option value="1">Last Hour</option>
+                        <option value="6">Last 6 Hours</option>
+                        <option value="24">Last 24 Hours</option>
+                    </select>
+                </div>
+                <div class="panel-content chart-container">
+                    <canvas id="throughput-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Pie Chart - Entity Distribution -->
+            <section class="panel pie-chart-panel">
+                <div class="panel-header">
+                    <h3>Entity Distribution</h3>
+                </div>
+                <div class="panel-content chart-container">
+                    <canvas id="entity-pie-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Bar Chart - Top Topics -->
+            <section class="panel bar-chart-panel">
+                <div class="panel-header">
+                    <h3>Top Topics by Messages</h3>
+                </div>
+                <div class="panel-content chart-container">
+                    <canvas id="topics-bar-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Producers Panel with CRUD -->
+            <section class="panel producers-panel">
+                <div class="panel-header">
+                    <h3>Producers</h3>
+                    <button class="btn-primary btn-small" onclick="openModal('producer')">+ Add</button>
+                </div>
+                <div class="panel-content">
+                    <div class="producer-list" id="producers-list"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Data Sync Architecture -->
+        <section class="sync-flow-section">
+            <div class="section-title">
+                <h2>Data Sync Architecture</h2>
+            </div>
+            <div class="sync-flow">
+                <div class="sync-node h2-node">
+                    <div class="node-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" />
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                        </svg>
+                    </div>
+                    <span>H2</span>
+                    <small>Primary</small>
+                </div>
+                <div class="sync-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12,5 19,12 12,19" />
+                    </svg>
+                    <span class="sync-label">5s sync</span>
+                </div>
+                <div class="sync-node mysql-node">
+                    <div class="node-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <span>MySQL</span>
+                    <small>Analytics</small>
+                </div>
+                <div class="sync-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12,5 19,12 12,19" />
+                    </svg>
+                    <span class="sync-label">On demand</span>
+                </div>
+                <div class="sync-node neo4j-node">
+                    <div class="node-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <circle cx="19" cy="5" r="2" />
+                            <circle cx="5" cy="5" r="2" />
+                        </svg>
+                    </div>
+                    <span>Neo4j</span>
+                    <small>Graph</small>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Analytics Section (Hidden by default) -->
+    <main class="main-content analytics-section" id="analytics-section" style="display: none;">
+        <header class="header">
+            <div class="header-left">
+                <h1>Analytics</h1>
+                <p class="header-subtitle">Detailed platform metrics and insights</p>
+            </div>
+            <div class="header-right">
+                <div class="sync-status">
+                    <span class="status-dot active"></span>
+                    <span>Neo4j Live</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Analytics Stats -->
+        <section class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon topics-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="analytics-uptime">99.9%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon producers-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="analytics-throughput">1.2M</span>
+                    <span class="stat-label">Total Messages</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon consumers-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20V10" />
+                        <path d="M18 20V4" />
+                        <path d="M6 20v-4" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="analytics-avg-rate">485</span>
+                    <span class="stat-label">Avg Msgs/min</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon messages-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22,4 12,14.01 9,11.01" />
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="analytics-health">Healthy</span>
+                    <span class="stat-label">System Status</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Charts Grid -->
+        <div class="main-grid">
+            <!-- Throughput Over Time -->
+            <section class="panel" style="grid-column: span 8;">
+                <div class="panel-header">
+                    <h3>Message Throughput Over Time</h3>
+                    <select class="chart-select" id="analytics-timeframe">
+                        <option value="1">Last Hour</option>
+                        <option value="6">Last 6 Hours</option>
+                        <option value="24" selected>Last 24 Hours</option>
+                        <option value="168">Last Week</option>
+                    </select>
+                </div>
+                <div class="panel-content chart-container" style="height: 300px;">
+                    <canvas id="analytics-throughput-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Entity Distribution -->
+            <section class="panel" style="grid-column: span 4;">
+                <div class="panel-header">
+                    <h3>Entity Distribution</h3>
+                </div>
+                <div class="panel-content chart-container" style="height: 300px;">
+                    <canvas id="analytics-entity-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Producer Activity -->
+            <section class="panel" style="grid-column: span 6;">
+                <div class="panel-header">
+                    <h3>Top Producers by Activity</h3>
+                </div>
+                <div class="panel-content chart-container" style="height: 280px;">
+                    <canvas id="analytics-producer-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Topic Message Distribution -->
+            <section class="panel" style="grid-column: span 6;">
+                <div class="panel-header">
+                    <h3>Topic Message Distribution</h3>
+                </div>
+                <div class="panel-content chart-container" style="height: 280px;">
+                    <canvas id="analytics-topic-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Relationship Stats -->
+            <section class="panel" style="grid-column: span 4;">
+                <div class="panel-header">
+                    <h3>Relationship Metrics</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="metric-list">
+                        <div class="metric-item">
+                            <span class="metric-label">PUBLISHES_TO Relations</span>
+                            <span class="metric-value" id="publishes-count">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">SUBSCRIBES_TO Relations</span>
+                            <span class="metric-value" id="subscribes-count">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Avg Topics/Producer</span>
+                            <span class="metric-value" id="avg-topics-producer">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Avg Producers/Topic</span>
+                            <span class="metric-value" id="avg-producers-topic">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Database Performance -->
+            <section class="panel" style="grid-column: span 8;">
+                <div class="panel-header">
+                    <h3>Database Nodes Overview</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="db-overview">
+                        <div class="db-node-stat">
+                            <div class="node-icon-large topics-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                </svg>
+                            </div>
+                            <div class="node-info">
+                                <span class="node-count" id="db-topics-count">0</span>
+                                <span class="node-label">Topic Nodes</span>
+                            </div>
+                        </div>
+                        <div class="db-node-stat">
+                            <div class="node-icon-large producers-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polygon points="10,8 16,12 10,16" />
+                                </svg>
+                            </div>
+                            <div class="node-info">
+                                <span class="node-count" id="db-producers-count">0</span>
+                                <span class="node-label">Producer Nodes</span>
+                            </div>
+                        </div>
+                        <div class="db-node-stat">
+                            <div class="node-icon-large consumers-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7,10 12,15 17,10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                            </div>
+                            <div class="node-info">
+                                <span class="node-count" id="db-consumers-count">0</span>
+                                <span class="node-label">Consumer Nodes</span>
+                            </div>
+                        </div>
+                        <div class="db-node-stat">
+                            <div class="node-icon-large messages-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </div>
+                            <div class="node-info">
+                                <span class="node-count" id="db-relations-count">0</span>
+                                <span class="node-label">Total Relations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- CRUD Modal -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" id="modal-submit">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal-overlay" id="delete-modal" onclick="closeDeleteModal()">
+        <div class="modal modal-small" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-message">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn-danger" id="delete-confirm">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon"></span>
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
